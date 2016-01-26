@@ -102,14 +102,14 @@ set to 1. The following are examples of how each of the six types would align
 the civil time representing February 2, 2016 at 04:05:06 in the morning (Note:
 the format used here is not important).
 
-| Class          |   Example alignment   |
-------------------------------------------
-| `civil_second` | `2016-02-03 04:05:06` |
-| `civil_minute` | `2016-02-03 04:05:00` |
-| `civil_hour`   | `2016-02-03 04:00:00` |
-| `civil_day`    | `2016-02-03 00:00:00` |
-| `civil_month`  | `2016-02-01 00:00:00` |
-| `civil_year`   | `2016-01-01 00:00:00` |
+ Class          | Example alignment   
+----------------|---------------------
+ `civil_second` | `2016-02-03 04:05:06` 
+ `civil_minute` | `2016-02-03 04:05:00` 
+ `civil_hour`   | `2016-02-03 04:00:00` 
+ `civil_day`    | `2016-02-03 00:00:00` 
+ `civil_month`  | `2016-02-01 00:00:00` 
+ `civil_year`   | `2016-01-01 00:00:00` 
 
 In addition to alignment, each civil time type performs arithmetic on the field
 to which it is aligned. This means that adding 1 to a `civil_day` increments the
@@ -132,7 +132,7 @@ The following code snippet illustrates the public API for each of the civil time
 types described above. As an implementation choice, Google chose to write one
 class template that is parameterized on the alignment field as a "tag" struct.
 
-```c++
+```cpp
 namespace detail {
 template <typename Alignment>
 class civil_time {
@@ -209,7 +209,7 @@ using civil_second = detail::civil_time<detail::second_tag>;
 In addition to the six civil time types defined above, the following helper
 functions are also defined to help with common computations.
 
-```c++
+```cpp
 enum class Weekday {
   Sunday,
   Monday,
