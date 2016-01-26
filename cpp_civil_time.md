@@ -11,12 +11,11 @@ This lack of a simple mental model begets the lack of a simple time-programming
 library, leaving only complicated libraries that programmers struggle to
 understand and use correctly.
 
-This was the state of the world at Google for many years. A few years ago we set
-out to fix these problems within Google by:
+A few years ago we set out to fix these problems within Google by:
 
 * Defining a simple mental model that will help programmers reason about
   arbitrarily complex situations involving time, time zones, DST, etc.
-* Producing a simple library (actually, two) that implements the mental model.
+* Producing a simple library (or two) that implements the mental model.
 
 This paper describes the *civil time* library that has been widely used within
 Google for a couple years. Our goal with this paper is to inform the C++
