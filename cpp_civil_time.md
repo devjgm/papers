@@ -17,7 +17,7 @@ A few years ago we set out to fix these problems within Google by:
   arbitrarily complex situations involving time, time zones, DST, etc.
 * Producing a simple library (or two) that implements the mental model.
 
-This paper describes the *civil time* library that has been widely used within
+This paper describes the Civil Time Library that has been widely used within
 Google for a couple years. Our goal with this paper is to inform the C++
 Standards Committee about the design and trade-offs we considered and the
 results of our real-world usage.
@@ -30,7 +30,7 @@ time zones (XXX: jgm add a link here).
 The mental model for time-programming that we teach within Google consists of
 three simple concepts that we will define here.
 
-*Absolute* times uniquely and universally represent a specific instant in time.
+*Absolute time* uniquely and universally represents a specific instant in time.
 They have no notion of calendars, or dates, or times of day. Instead, they
 measure the passage of real time, typically as a simple count of ticks since
 some epoch. Absolute times are independent of all time zones and do not suffer
@@ -38,7 +38,7 @@ from human-imposed complexities such as daylight-saving time (DST). Many C++
 types exist to represent absolute times, classically `time_t` and more recently
 `std::chrono::time_point`.
 
-*Civil* time is the legally recognized representation of time for ordinary
+*Civil time* is the legally recognized representation of time for ordinary
 affairs (cf. http://www.merriam-webster.com/dictionary/civil). It is a
 humane-scale representation of time that consists of the six fields &mdash;
 year, month, day, hour, minute, and second (sometimes shortened to "YMDHMS")
@@ -46,7 +46,7 @@ year, month, day, hour, minute, and second (sometimes shortened to "YMDHMS")
 24-hour days divided into hours and minutes. Civil times are also independent of
 all time zones and their related complexities (e.g., DST). While `std::tm`
 contains the six YMDHMS civil-time fields (plus a few more), it does not have
-behavior enforcing the rules of civil times and just described.
+behavior that enforces the rules of civil times just described.
 
 *Time zones* are geo-political regions within which human-defined rules are
 shared to convert between the previously described absolute time and civil time
@@ -54,15 +54,15 @@ domains. A time-zone's rules include things like the region's offset from the
 UTC time standard, daylight-saving adjustments, and short abbreviation strings.
 Time zones often have a history of disparate rules that apply only for certain
 periods because the rules may change at the whim of a region's local government.
-For this reason, time zone rules are often compiled into snapshots of data that
-is used at runtime to perform conversions between absolute and civil times. A
+For this reason, time zone rules are often compiled into data snapshots that are
+used at runtime to perform conversions between absolute and civil times. A
 proposal for a standard time zone library is presented in another paper (XXX:
 jgm add a link here).
 
 ## Overview
 
-To build a library that is easy to understand and use, we make the following
-simplifying assumptions for civil times:
+To build a Civil Time Library that is easy to understand and use, we made the
+following simplifying assumptions:
 
 * Civil times use the [Proleptic Gregorian Calendar] only. Other calendars do
   exist in the real world, but their rarity of use does not warrant complicating
@@ -70,10 +70,10 @@ simplifying assumptions for civil times:
   [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) rely on the
   Gregorian calendar, so this seems like a reasonable simplification.
 * Civil times are time zone independent. This frees programmers from the
-  complexities of daylight-saving, UTC offset transitions, and even leap seconds
-  while working in the civil time domain. Programmers can instead reason using
-  the simple rules of the calendar and write code that is agnostic of time
-  zone. (XXX: Should I say more about leap seconds? Foot note).
+  complexities of daylight-saving, UTC offset transitions, and even leap
+  seconds, while working in the civil time domain. Programmers can instead
+  reason using the simple rules of the calendar and write code that is agnostic
+  of time zone. (XXX: Should I say more about leap seconds? Foot note).
 * Civil times are always valid. There is no invalid civil time or error state
   that needs to be checked. This is enforced by normalizing input fields using
   the same rules that `mktime(3)` uses (for example, January 32 will normalize
@@ -112,11 +112,12 @@ the format used here is not important).
 
 In addition to alignment, each civil time type performs arithmetic on the field
 to which it is aligned. This means that adding 1 to a `civil_day` increments the
-day field (normalizing and over/underflowing as necessary), and subtracting 7
-from a `civil_month` affects the month field. Difference requires two similarly
-aligned civil time types and returns the scaler answer in units of the given
-alignment. For example, the difference between two `civil_hour` objects will give
-an answer in hours.
+day field (normalizing as necessary), and subtracting 7 from a `civil_month`
+operates the month field (which may underflow into the year field when
+normalizing). All arithmetic produces a new civil time value that is valid.
+Difference requires two similarly aligned civil time types and returns the
+scaler answer in units of the given alignment. For example, the difference
+between two `civil_hour` objects will give an answer in hours.
 
 (XXX: jgm The misc. section below talks about how the reason that alignment is
 so useful.)
@@ -129,7 +130,7 @@ These will be described in the API section below.
 
 The following code snippet illustrates the public API for each of the civil time
 types described above. As an implementation choice, Google chose to write one
-class template that is parameterized on the alignment field as a "tag" struct.
+class template that is parameterized on the alignment field as a tag struct.
 
 ```cpp
 namespace detail {
@@ -143,7 +144,7 @@ class civil_time {
 
   // Explicit conversion between civil times of different alignment.
   template <typename U>
-  explicit civil_time(civil_time<U> a);
+  explicit civil_time(civil_time<U>);
 
   // Field Accessors
   int year() const;
@@ -219,6 +220,8 @@ enum class Weekday {
   Saturday
 };
 
+// Returns the civil_day that strictly follows or precedes the argument,
+// and that falls on the given weekday.
 civil_day NextWeekday(const civil_day&, Weekday);
 civil_day PrevWeekday(const civil_day&, Weekday);
 
