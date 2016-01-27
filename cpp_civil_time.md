@@ -100,17 +100,17 @@ subtraction, and difference.
 Alignment is performed by setting all the inferior fields to their minimum valid
 value. Hours, minutes, and seconds will be set to 0, and month and day will be
 set to 1. The following are examples of how each of the six types would align
-the civil time representing February 2, 2016 at 04:05:06 in the morning (Note:
+the civil time representing February 2, 2015 at 04:05:06 in the morning (Note:
 the format used here is not important).
 
  Class          | Example alignment
 ----------------|---------------------
- `civil_second` | `2016-02-03 04:05:06`
- `civil_minute` | `2016-02-03 04:05:00`
- `civil_hour`   | `2016-02-03 04:00:00`
- `civil_day`    | `2016-02-03 00:00:00`
- `civil_month`  | `2016-02-01 00:00:00`
- `civil_year`   | `2016-01-01 00:00:00`
+ `civil_second` | `2015-02-03 04:05:06`
+ `civil_minute` | `2015-02-03 04:05:00`
+ `civil_hour`   | `2015-02-03 04:00:00`
+ `civil_day`    | `2015-02-03 00:00:00`
+ `civil_month`  | `2015-02-01 00:00:00`
+ `civil_year`   | `2015-01-01 00:00:00`
 
 In addition to alignment, each civil time type performs arithmetic on the field
 to which it is aligned. This means that adding 1 to a `civil_day` increments the
@@ -244,17 +244,14 @@ the string format are assumed to have their minimum value. For example:
 ```cpp
 civil_day d(2015, 2, 3);
 // d.year() == 2015
-// d.month() == 6
-// d.day() == 28
+// d.month() == 2
+// d.day() == 3
 // d.hour() == 0
 // d.minute() == 0
 // d.second() == 0
 // Shorthand: d == 2015-02-03
+// ...same as d == 2015-02-03 00:00:00
 ```
-
-Note: In some examples below, civil_second and civil_day will be used to show
-the interaction between civil time types of differing alignment, but keep in
-mind that the examples applies to all civil time types equally.
 
 ### Construction
 
@@ -310,10 +307,10 @@ for (civil_day d(2015, 2, 1); d < civil_month(2015, 3); ++d) {
 
 ### Arithmetic
 
-Civil time types support natural arithmetic operators, such as addition,
+Civil time types support natural arithmetic operators such as addition,
 subtraction, and difference. Arithmetic operates on the civil field indicated in
-the type name. Difference requires arguments with the same alignment and returns
-the answer in units of the alignment.
+the type's name. Difference requires arguments with the same alignment and
+returns the answer in units of the alignment.
 
 ```cpp
 civil_day a(2015, 2, 3);
@@ -342,7 +339,7 @@ was already on the requested weekday.
 // 16 17 18 19 20 21 22
 // 23 24 25 26 27 28 29
 // 30 31
-//
+
 civil_day a(2015, 8, 13);  // GetWeekday(a) == Weekday::Thursday
 civil_day b = NextWeekday(a, Weekday::Thursday);  // 2015-08-20
 civil_day c = PrevWeekday(a, Weekday::Thursday);  // 2015-08-06
