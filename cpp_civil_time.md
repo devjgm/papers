@@ -212,23 +212,23 @@ In addition to the six civil time types defined above, the following helper
 functions are also defined to help with common computations.
 
 ```cpp
-enum class Weekday {
-  Sunday,
-  Monday,
-  Tuesday,
-  Wednesday,
-  Thursday,
-  Friday,
-  Saturday
+enum class weekday {
+  sunday,
+  monday,
+  tuesday,
+  wednesday,
+  thursday,
+  friday,
+  saturday
 };
 
 // Returns the civil_day that strictly follows or precedes the argument,
 // and that falls on the given weekday.
-civil_day NextWeekday(const civil_day&, Weekday);
-civil_day PrevWeekday(const civil_day&, Weekday);
+civil_day next_weekday(const civil_day&, weekday);
+civil_day prev_weekday(const civil_day&, weekday);
 
-Weekday GetWeekday(const civil_day&);
-int GetYearday(const civil_day&);
+weekday get_weekday(const civil_day&);
+int get_yearday(const civil_day&);
 
 ```
 
@@ -324,10 +324,10 @@ int m = c - civil_month(c);  // Won't compile: different types.
 
 ### Weekdays
 
-The Civil Time Library provides the `PrevWeekday()` and `NextWeekday()`
+The Civil Time Library provides the `prev_weekday()` and `next_weekday()`
 functions for navigating a calendar by the day of the week. Both functions
-accept a `civil_day` argument as well as the desired `Weekday`. They both return
-a different `civil_day` that falls on the given `Weekday`, even if the argument
+accept a `civil_day` argument as well as the desired `weekday`. They both return
+a different `civil_day` that falls on the given `weekday`, even if the argument
 was already on the requested weekday.
 
 ```cpp
@@ -340,15 +340,15 @@ was already on the requested weekday.
 // 23 24 25 26 27 28 29
 // 30 31
 
-civil_day a(2015, 8, 13);  // GetWeekday(a) == Weekday::Thursday
-civil_day b = NextWeekday(a, Weekday::Thursday);  // 2015-08-20
-civil_day c = PrevWeekday(a, Weekday::Thursday);  // 2015-08-06
+civil_day a(2015, 8, 13);  // get_weekday(a) == weekday::thursday
+civil_day b = next_weekday(a, weekday::thursday);  // 2015-08-20
+civil_day c = prev_weekday(a, weekday::thursday);  // 2015-08-06
 
 civil_day d = ...
 // Gets the following Thursday if d is not already Thursday
-civil_day ceil_thursday = PrevWeekday(d, Weekday::Thursday) + 7;
+civil_day ceil_thursday = prev_weekday(d, weekday::thursday) + 7;
 // Gets the previous Thursday if d is not already Thursday
-civil_day floor_thursday = NextWeekday(d, Weekday::Thursday) - 7;
+civil_day floor_thursday = next_weekday(d, weekday::thursday) - 7;
 ```
 
 ## Miscellaneous
