@@ -319,7 +319,7 @@ civil_day a(2015, 2, 3);
 civil_day b = a + 1;  // 2015-02-04 00:00:00
 civil_day c = 1 + b;  // 2015-02-05 00:00:00
 int n = c - a;        // n = 2 (days)
-int m = c - civil_month(c);  // ERROR: different types.
+int m = c - civil_month(c);  // Won't compile: different types.
 ```
 
 ### Weekdays
