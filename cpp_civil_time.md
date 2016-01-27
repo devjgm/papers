@@ -78,9 +78,9 @@ following simplifying assumptions:
   applied by the civil-time types.)
 * Civil times are always valid. There is no invalid civil time or error state
   that needs to be checked. This is enforced by normalizing input fields
-  (similar to `mktime(3)`), for example, January 32 will normalize to February
-  1. Note: If normalization is undesired, callers can compare the resulting
-  normalized fields to the input fields to signal an error.
+  (similar to `mktime(3)`), for example, Jan 32 will normalize to Feb 1. Note:
+  If normalization is undesired, callers can compare the resulting normalized
+  fields to the input fields to signal an error.
 
 The core of the Civil Time Library is based on the following six individual
 classes:
