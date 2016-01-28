@@ -1,5 +1,7 @@
 # C++ Standard Proposal &mdash; A Civil Time Library
 
+Authors: Greg Miller (jgm@google.com), Bradley White (bww@google.com)
+
 ## Motivation
 
 Programming with time on a human scale is notoriously difficult and error
