@@ -11,7 +11,8 @@ This lack of a simple mental model begets the lack of a simple time-programming
 library, leaving only complicated libraries that programmers struggle to
 understand and use correctly.
 
-A few years ago we set out to fix these problems within Google by:
+A few years ago we set out to fix these problems within Google by doing the
+following:
 
 * Defining a simple mental model that will help programmers reason about
   arbitrarily complex situations involving time, time zones, DST, etc.
