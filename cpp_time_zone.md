@@ -73,7 +73,91 @@ a mapping between the absolute and civil time domains.
 
 ## Overview
 
+Time zones are canonically identified by a string of the form
+[Contentent]/[City], such as "America/New_York", "Europe/London", and
+"Australia/Sydney". The data encapsulated by a time zone describes the offset
+from the [UTC] time standard (in seconds east), a short abbreviation string
+(e.g., "EST", "PDT"), and information about daylight-saving time (DST). These
+rules are defined by local governments and they may change over time. A time
+zone, therefore, represents the complete history of time zone rules and when
+each rule applies for a given region.
+
+Ultimately, a time zone represents the rules necessary to convert from an
+*absolute time* to a *civil time* and vice versa.
+
+The core of the Time Zone Library presented here is a single class named
+`time_zone`, which has two member functions to convert between absolute and
+civil times. The Time Zone Library also defines a convenience syntax for doing
+these conversions with `operator|`, as we will see below. There are also
+functions to format and parse absolute times as strings.
+
 ## API
+
+The interface for the core `time_zone` class is as follows.
+
+```cpp
+#include <chrono>
+#include "civil.h"  // XXX: jgm reference the other paper
+
+// Convenience aliases.
+template <typename D>
+using time_point = std::chrono::time_point<std::chrono::system_clock, D>;
+using sys_seconds = std::chrono::duration<std::chrono::system_clock::rep,
+                                          std::chrono::seconds::period>;
+
+class time_zone {                                                                        
+ public:
+  // A value type.
+  time_zone() = default;  // Equivalent to UTC                                           
+  time_zone(const time_zone&) = default; 
+  time_zone& operator=(const time_zone&) = default;                                       
+  
+  struct time_conversion {
+    civil_second cs;
+    int offset;        // seconds east of UTC
+    bool is_dst;       // is offset non-standard?
+    std::string abbr;  // time-zone abbreviation (e.g., "PST")                            
+  };
+  template <typename D>
+  time_conversion convert(const time_point<D>& tp) const;                                     
+
+  struct civil_conversion { 
+    enum class kind {
+      UNIQUE,    // the civil time was singular (pre == trans == post)                    
+      SKIPPED,   // the civil time did not exist                                          
+      REPEATED,  // the civil time was ambiguous                                          
+    } kind;
+    time_point<sys_seconds> pre;   // Uses the pre-transition offset                         
+    time_point<sys_seconds> trans; 
+    time_point<sys_seconds> post;  // Uses the post-transition offset                       
+  };
+  civil_conversion convert(const civil_second& cs) const;                                                                                                                        
+ 
+ private:
+  ...                                                         
+};
+
+// Loads the named time zone. Returns false on error.
+bool load_time_zone(const std::string& name, time_zone* tz);
+
+// Returns a time_zone representing UTC.
+time_zone utc_time_zone();
+
+// Returns a time zone representing the local time zone.
+time_zone local_time_zone();
+
+```
+
+The full information provided by the `time_zone::time_conversion` and
+`time_zone::civil_conversion` structs is frequently not needed by callers. To
+simplify the common case of converting between `std::chrono::time_point` and
+`civil_second`, we provide the following two overloads of `operator|` to allow
+"piping" either type to a `time_zone` in order to convert to the other type.
+
+Converting from an absolute time to a civil time (e.g.,
+`std::chrono::time_point` -> `civil_second`) is an exact calculation with no
+time zone ambiguities.
+
 
 ## Examples
 
