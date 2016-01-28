@@ -76,11 +76,11 @@ a mapping between the absolute and civil time domains.
 Time zones are canonically identified by a string of the form
 [Continent]/[City], such as "America/New_York", "Europe/London", and
 "Australia/Sydney". The data encapsulated by a time zone describes the offset
-from the [UTC] time standard (in seconds east), a short abbreviation string
-(e.g., "EST", "PDT"), and information about daylight-saving time (DST). These
-rules are defined by local governments and they may change over time. A time
-zone, therefore, represents the complete history of time zone rules and when
-each rule applies for a given region.
+from the [UTC] time standard, a short abbreviation string (e.g., "EST", "PDT"),
+and information about daylight-saving time (DST). These rules are defined by
+local governments and they may change over time. A time zone, therefore,
+represents the complete history of time zone rules and when each rule applies
+for a given region.
 
 Ultimately, a time zone represents the rules necessary to convert any *absolute
 time* to a *civil time* and vice versa.
@@ -218,6 +218,86 @@ bool parse(const std::string& format, const std::string& input,
 
 ## Examples
 
+### Creating a `time_zone`
+
+Time zones are created by passing the time zone's name to the `load_time_zone()`
+function along with a pointer to a `time_zone`. Since the named zone may not
+exist or may be specified incorrectly by the caller, the function may return
+`false` on error.
+
+Additionally, callers may get time zones representing UTC or the process's local
+time zone through convenience functions that cannot fail and return the time
+zone by value.
+
+```cpp
+time_zone nyc;
+if (load_time_zone("America/New_York", &nyc)) {
+  ...
+}
+
+const time_zone utc = utc_time_zone();
+```
+
+### Creating an `time_point` from a `civil_second`
+
+```cpp
+const civil_second cs(2015, 2, 3, 4, 5, 6);  // 2015-02-03 04:05:06
+const time_zone utc = utc_time_zone();
+
+const auto tp1 = cs | nyc;  // Civil -> Absolute
+
+time_zone nyc;
+if (load_time_zone("America/New_York", &nyc)) {
+  const auto tp2 = cs | nyc;  // Civil -> Absolute
+  // Note: tp1 != tp2
+}
+```
+
+### Creating a `civil_second` from a `time_point`
+
+```cpp
+const time_t tt = 1234567890;
+const auto tp = std::chrono::system_clock::from_time_t(tt);
+
+const time_zone utc = utc_time_zone();
+civil_second cs1 = tp | utc;  // Absolute -> Civil
+
+time_zone nyc;
+if (load_time_zone("America/New_York", &nyc)) {
+  civil_second cs2 = tp | nyc;  // Absolute -> Civil
+  // Note: cs1 != cs2
+}
+```
+
+### Flight example
+
+This example is borrowed from Howard Hinnant at
+http://howardhinnant.github.io/tz.html.
+
+> There's nothing like a real-world example to help demonstrate things. Imagine
+> a plane flying from New York, New York, USA to Tehran, Iran. To make it more
+> realistic, lets say this flight occurred before the hostage crisis, right at the
+> end of 1978. Flight time for a non-stop one way trip is 14 hours and 44
+> minutes.
+>
+> Given that the departure is one minute past noon on Dec. 30, 1978, local time,
+> what is the local arrival time?
+
+```cpp
+time_zone nyc;
+if (!load_time_zone("America/New_York", &nyc)) {
+  // error.
+}
+const auto departure = civil_second(1978, 12, 30, 12, 1) | nyc;
+const auto flight_length = std::chrono::hours(14) + std::chrono::minutes(44);
+const auto arrival = departure + flight_length;
+time_zone teh;
+if (!load_time_zone("Asia/Tehran", &teh)) {
+  // error.
+}
+std::cout << "departure NYC time: " << format(departure, nyc);
+std::cout << "arrival Tehran time: " << format(arrival, teh);
+```
 
 [Proleptic Gregorian Calendar]: https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
 [UTC]: https://en.wikipedia.org/wiki/Coordinated_Universal_Time
