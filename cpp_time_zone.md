@@ -291,7 +291,7 @@ time_zone nyc;
 if (!load_time_zone("America/New_York", &nyc)) {
   // error.
 }
-const auto departure = civil_second(1978, 12, 30, 12, 1) | nyc;
+const auto departure = civil_second(1978, 12, 30, 12, 1, 0) | nyc;
 const auto flight_length = std::chrono::hours(14) + std::chrono::minutes(44);
 const auto arrival = departure + flight_length;
 time_zone teh;
