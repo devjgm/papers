@@ -155,9 +155,55 @@ simplify the common case of converting between `std::chrono::time_point` and
 "piping" either type to a `time_zone` in order to convert to the other type.
 
 Converting from an absolute time to a civil time (e.g.,
-`std::chrono::time_point` -> `civil_second`) is an exact calculation with no
-time zone ambiguities.
+`std::chrono::time_point` to `civil_second`) is an exact calculation with no
+time zone ambiguities. However, conversion from civil time to absolute time may
+not be exact. Time zone rules around UTC offset transitions may result in
+ambiguous civil times (e.g., the 1:00 am hour is repeated during the Autumn DST
+transition in the United States), or even civil times that do not exist (e.g.,
+the 2:0am hour is skipped during the Spring DST transition in the United
+States). The `time_zone::civil_conversion` struct provides all the necessary
+information about the conversion to callers. However, the convenience syntax
+must select an appropriate "default" time point to return.
+XXX: jgm, explain the default value chosen and why this is good.
 
+```cpp
+template <typename D>
+inline CivilSecond operator|(const time_point<D>& tp, const time_zone& tz) {
+  return tz.convert(tp).cs;
+}
+
+inline time_point<sys_seconds> operator|(const civil_second& cs, const time_zone& tz) {
+  const auto conv = tz.convert(cs);
+  if (conv.kind == time_zone::civil_conversion::kind::SKIPPED)
+    return conv.trans;
+  return conv.pre;
+}
+```
+
+Note: This convenience syntax exists to shorten common code samples, and to
+select a generally good default for programmers when necessary. It is not an
+essential part of the Time Zone Library proposed in this paper.
+
+Finally, functions are provided for formatting and parsing absolute times with
+respect to a given time zone. These functions use `strftime()`-like format
+specifiers, with the following extensions:
+
+Specifier | Description
+----------|------------
+`%Ez`     | RFC3339-compatible numeric time zone (+hh:mm or -hh:mm)
+`%E#S`    | Seconds with # digits of fractional precision
+`%E*S`    | Seconds with full fractional precision (a literal '*')
+`%E4Y`    | Four-character years (-999 ... -001, 0000, 0001 ... 9999)
+
+```cpp
+template <typename D>
+std::string format(const std::string& format, const time_point<D>& tp,
+                   const time_zone& tz);
+
+template <typename D>
+bool parse(const std::string& format, const std::string& input,
+           const time_zone& tz, time_point<D>* tpp);
+```
 
 ## Examples
 
