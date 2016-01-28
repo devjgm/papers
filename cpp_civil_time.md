@@ -2,14 +2,14 @@
 
 ## Motivation
 
-Programming with time on a human scale is notoriously difficult and error
-prone: time zones are complicated, daylight-saving time (DST) is complicated,
-calendars are complicated, and leap seconds are complicated. These complexities
-quickly surface in code because programmers do not have a simple mental model
-with which to reason about the time-programming challenges that they are facing.
-This lack of a simple mental model begets the lack of a simple time-programming
-library, leaving only complicated libraries that programmers struggle to
-understand and use correctly.
+Programming with time on a human scale is notoriously difficult and error prone:
+time zones are complicated, daylight-saving time (DST) is complicated, calendars
+are complicated, and leap seconds are complicated. These complexities quickly
+surface in code because programmers do not have a simple mental model with which
+to reason about the time-programming challenges they are facing. This lack of a
+simple mental model begets the lack of a simple time-programming library,
+leaving only complicated libraries that programmers struggle to understand and
+use correctly.
 
 A few years ago we set out to fix these problems within Google by doing the
 following:
@@ -26,7 +26,7 @@ results of our real-world usage.
 NOTE: This paper is not dependent on, but is closely related to, the paper about
 time zones (XXX: jgm add a link here).
 
-## Definitions
+## Mental Model
 
 The mental model for time-programming that we teach within Google consists of
 three simple concepts that we will define here (Note: this model and these
@@ -48,7 +48,7 @@ and it follows the rules of the [Proleptic Gregorian Calendar], with 24-hour
 days divided into hours and minutes. Like absolute times, civil times are also
 independent of all time zones and their related complexities (e.g., DST). While
 `std::tm` contains the six YMDHMS civil-time fields (plus a few more), it does
-not have behavior that enforces the rules of civil times as just described.
+not have behavior to enforce the rules of civil time as just described.
 
 *Time zones* are geo-political regions within which human-defined rules are
 shared to convert between the previously described absolute time and civil time
@@ -60,6 +60,12 @@ For this reason, time zone rules are often compiled into data snapshots that are
 used at runtime to perform conversions between absolute and civil times. A
 proposal for a standard time zone library is presented in another paper (XXX:
 jgm add a link here).
+
+The C++ standard library already has `<chrono>`, which is a good implementation
+of *absolute time* (as well as the related duration concept). This paper
+proposes a standard *civil time* library that complements `<chrono>`. A separate
+paper (XXX: jgm insert the paper number) proposes a standard *time zone* library
+that bridges `<chrono>` and the Civil Time Library proposed in this paper.
 
 ## Overview
 
@@ -125,7 +131,9 @@ example, the difference between two `civil_hour` objects will give an answer in
 hours.
 
 XXX: Put this foot not somewhere.
+
 [
+
 One of the classic questions that arises when talking about a Civil Time Library
 (aka a date library or a date/time library) is this: "What happens when you add
 a month to Jan 31?" This is an interesting question because there could be a
