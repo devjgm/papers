@@ -210,6 +210,9 @@ Specifier | Description
 template <typename D>
 std::string format(const std::string& format, const time_point<D>& tp,
                    const time_zone& tz);
+// Uses a format string of "%Y-%m-%dT%H:%M:%E*S%Ez"
+template <typename D>
+std::string format(const time_point<D>& tp, const time_zone& tz);
 
 template <typename D>
 bool parse(const std::string& format, const std::string& input,
