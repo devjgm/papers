@@ -121,40 +121,14 @@ align the civil time representing February 3, 2015 at 04:05:06 in the morning
  `civil_month`  | `2015-02-01 00:00:00`
  `civil_year`   | `2015-01-01 00:00:00`
 
-Each civil time type performs arithmetic on the field to which it is aligned.
-This means that adding 1 to a `civil_day` increments the day field (normalizing
-as necessary), and subtracting 7 from a `civil_month` operates on the month
-field (normalizing as necessary). All arithmetic produces a new value that
-represents a valid civil time. Difference requires two similarly aligned civil
-time types and returns the scaler answer in units of the given alignment. For
-example, the difference between two `civil_hour` objects will give an answer in
-hours.
-
-XXX: Put this foot not somewhere.
-
-[
-
-One of the classic questions that arises when talking about a Civil Time Library
-(aka a date library or a date/time library) is this: "What happens when you add
-a month to Jan 31?" This is an interesting question because there could be a
-number of possible answers, such as:
-
-* Error. The caller gets some error, maybe an exception, maybe an invalid date
-  object, or maybe `false` is returned. This may make sense because there's no
-  single unambiguously correct answer.
-* Maybe Feb 28 (or 29 if a leap year). This may make sense because the operation
-  goes from the last day of January to the last day of February.
-* Maybe March 3 (or 2 if a leap year). This may make sense because the operation
-  goes to the equivalent of Feb 31.
-
-Any answer that is not what the programmer expected is the wrong answer.
-
-The Civil Time Library described here avoids this question by making it
-impossible to ask such a question because of alignment requirements. To solve
-the problem, callers will have to be more explicit in their code about how they
-want to handle that situation. In practice, we have found few places where
-programmers wanted to do unaligned arithmetic.
-]
+Each civil time type performs arithmetic on the field to which it is aligned 
+<sup>[1](#alignfoot)</sup>. This means that adding 1 to a `civil_day` increments 
+the day field (normalizing as necessary), and subtracting 7 from a `civil_month` 
+operates on the month field (normalizing as necessary). All arithmetic produces 
+a new value that represents a valid civil time. Difference requires two similarly 
+aligned civil time types and returns the scaler answer in units of the given 
+alignment. For example, the difference between two `civil_hour` objects will give 
+an answer in hours.
 
 Finally, in addition to the six civil time types just described, there are a
 handful of helper functions and algorithms for performing common calculations.
@@ -384,5 +358,28 @@ civil_day ceil_thursday = prev_weekday(d, weekday::thursday) + 7;
 // Gets the previous Thursday if d is not already Thursday
 civil_day floor_thursday = next_weekday(d, weekday::thursday) - 7;
 ```
+
+---
+
+<a name="alignfoot">1</a>: One of the classic questions that arises when talking 
+about a Civil Time Library (aka a date library or a date/time library) is this: 
+"What happens when you add a month to Jan 31?" This is an interesting question 
+because there could be a number of possible answers, such as:
+
+* Error. The caller gets some error, maybe an exception, maybe an invalid date
+  object, or maybe `false` is returned. This may make sense because there's no
+  single unambiguously correct answer.
+* Maybe Feb 28 (or 29 if a leap year). This may make sense because the operation
+  goes from the last day of January to the last day of February.
+* Maybe March 3 (or 2 if a leap year). This may make sense because the operation
+  goes to the equivalent of Feb 31.
+
+Any answer that is not what the programmer expected is the wrong answer.
+
+The Civil Time Library described here avoids this question by making it
+impossible to ask such a question because of alignment requirements. To solve
+the problem, callers will have to be more explicit in their code about how they
+want to handle that situation. In practice, we have found few places where
+programmers wanted to do unaligned arithmetic.
 
 [Proleptic Gregorian Calendar]: https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
