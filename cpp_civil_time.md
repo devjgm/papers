@@ -28,7 +28,8 @@ time zones (XXX: jgm add a link here).
 ## Definitions
 
 The mental model for time-programming that we teach within Google consists of
-three simple concepts that we will define here.
+three simple concepts that we will define here (Note: this model and these
+definitions are not specific to C++).
 
 *Absolute time* uniquely and universally represents a specific instant in time.
 It has no notion of calendars, or dates, or times of day. Instead, it is a
@@ -43,10 +44,10 @@ affairs (cf. http://www.merriam-webster.com/dictionary/civil). It is a
 human-scale representation of time that consists of the six fields &mdash; year,
 month, day, hour, minute, and second (sometimes shortened to "YMDHMS") &mdash;
 and it follows the rules of the [Proleptic Gregorian Calendar], with 24-hour
-days divided into hours and minutes. Civil times are also independent of all
-time zones and their related complexities (e.g., DST). While `std::tm` contains
-the six YMDHMS civil-time fields (plus a few more), it does not have behavior
-that enforces the rules of civil times just described.
+days divided into hours and minutes. Like absolute times, civil times are also
+independent of all time zones and their related complexities (e.g., DST). While
+`std::tm` contains the six YMDHMS civil-time fields (plus a few more), it does
+not have behavior that enforces the rules of civil times as just described.
 
 *Time zones* are geo-political regions within which human-defined rules are
 shared to convert between the previously described absolute time and civil time
@@ -70,7 +71,7 @@ following simplifying assumptions:
   [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) rely on the
   Gregorian calendar, so this seems like a reasonable simplification.
 * Civil times are time zone independent. This frees programmers from the
-  complexities of daylight-saving, UTC offset transitions, and even leap
+  complexities of daylight-saving time, UTC offset transitions, and even leap
   seconds, while working in the civil time domain. Programmers can instead
   reason using the simple rules of the calendar and write code that is agnostic
   of time zone. (Note: leap seconds, like DST, are YMDHMS constraints that are
@@ -93,15 +94,16 @@ classes:
 * `civil_year`
 
 Each class is a simple value type with the same interface for construction and
-the same six attributes (a getter for each of the YMDHMS fields). These
-classes differ only in their alignment and their semantics regarding addition,
-subtraction, and difference.
+the same six accessors for each of the YMDHMS fields. These classes differ only
+in their *alignment* and their semantics regarding addition, subtraction, and
+difference.
 
-Alignment is performed by setting all the inferior fields to their minimum valid
-value. Hours, minutes, and seconds will be set to 0, and month and day will be
-set to 1. The following are examples of how each of the six types would align
-the civil time representing February 2, 2015 at 04:05:06 in the morning (Note:
-the format used here is not important).
+A civil time class is aligned to the civil-time field indicated in the class's
+name. Alignment is performed by setting all the inferior fields to their minimum
+valid value. Hours, minutes, and seconds will be set to 0, and month and day
+will be set to 1. The following are examples of how each of the six types would
+align the civil time representing February 3, 2015 at 04:05:06 in the morning
+(Note: the string format used here is not important).
 
  Class          | Example alignment
 ----------------|---------------------
@@ -112,17 +114,38 @@ the format used here is not important).
  `civil_month`  | `2015-02-01 00:00:00`
  `civil_year`   | `2015-01-01 00:00:00`
 
-In addition to alignment, each civil time type performs arithmetic on the field
-to which it is aligned. This means that adding 1 to a `civil_day` increments the
-day field (normalizing as necessary), and subtracting 7 from a `civil_month`
-operates on the month field (which may underflow into the year field when
-normalizing). All arithmetic produces a new civil time value that is valid.
-Difference requires two similarly aligned civil time types and returns the
-scaler answer in units of the given alignment. For example, the difference
-between two `civil_hour` objects will give an answer in hours.
+Each civil time type performs arithmetic on the field to which it is aligned.
+This means that adding 1 to a `civil_day` increments the day field (normalizing
+as necessary), and subtracting 7 from a `civil_month` operates on the month
+field (normalizing as necessary). All arithmetic produces a new value that
+represents a valid civil time. Difference requires two similarly aligned civil
+time types and returns the scaler answer in units of the given alignment. For
+example, the difference between two `civil_hour` objects will give an answer in
+hours.
 
-(XXX: jgm The misc. section below talks about how the reason that alignment is
-so useful.)
+XXX: Put this foot not somewhere.
+[
+One of the classic questions that arises when talking about a Civil Time Library
+(aka a date library or a date/time library) is this: "What happens when you add
+a month to Jan 31?" This is an interesting question because there could be a
+number of possible answers, such as:
+
+* Error. The caller gets some error, maybe an exception, maybe an invalid date
+  object, or maybe `false` is returned. This may make sense because there's no
+  single unambiguously correct answer.
+* Maybe Feb 28 (or 29 if a leap year). This may make sense because the operation
+  goes from the last day of January to the last day of February.
+* Maybe March 3 (or 2 if a leap year). This may make sense because the operation
+  goes to the equivalent of Feb 31.
+
+Any answer that is not what the programmer expected is the wrong answer.
+
+The Civil Time Library described here avoids this question by making it
+impossible to ask such a question because of alignment requirements. To solve
+the problem, callers will have to be more explicit in their code about how they
+want to handle that situation. In practice, we have found few places where
+programmers wanted to do unaligned arithmetic.
+]
 
 Finally, in addition to the six civil time types just described, there are a
 handful of helper functions and algorithms for performing common calculations.
@@ -133,6 +156,8 @@ These will be described in the API section below.
 The following code snippet illustrates the public API for each of the civil time
 types described above. As an implementation choice, Google chose to write one
 class template that is parameterized on the alignment field as a tag struct.
+
+XXX: jgm, update this code with proper constexpr usage.
 
 ```cpp
 namespace detail {
@@ -237,9 +262,10 @@ int get_yearday(const civil_day&);
 The following examples show how to use the proposed Civil Time Library, as well
 as illustrate interesting semantics of various API points.
 
-As a shorthand in the examples below, the YMDHMS fields of a civil time type
-may be shown as a string of the form `YYYY-MM-DD HH:MM:SS`. Fields omitted from
-the string format are assumed to have their minimum value. For example:
+As a shorthand in the examples below, the YMDHMS fields of a civil time type may
+be shown as a string of the form `YYYY-MM-DD HH:MM:SS`. Fields omitted from the
+string format still exist and are assumed to have their minimum value. For
+example:
 
 ```cpp
 civil_day d(2015, 2, 3);
@@ -265,29 +291,28 @@ civil_day a(2015, 2, 3);           // 2015-02-03 00:00:00
 civil_day b(2015, 2, 3, 4, 5, 6);  // 2015-02-03 00:00:00
 civil_day c(2015);                 // 2015-01-01 00:00:00
 
-civil_second ss(2015, 1, 2, 3, 4, 5, 6);  // 2015-02-03 04:05:06
-civil_minute mm(ss);                      // 2015-02-03 04:05:00
-civil_hour hh(mm);                        // 2015-02-03 04:00:00
-civil_day d(hh);                          // 2015-02-03 00:00:00
-civil_month m(d);                         // 2015-02-01 00:00:00
-civil_year y(m);                          // 2015-01-01 00:00:00
+civil_second ss(2015, 2, 3, 4, 5, 6);  // 2015-02-03 04:05:06
+civil_minute mm(ss);                   // 2015-02-03 04:05:00
+civil_hour hh(mm);                     // 2015-02-03 04:00:00
+civil_day d(hh);                       // 2015-02-03 00:00:00
+civil_month m(d);                      // 2015-02-01 00:00:00
+civil_year y(m);                       // 2015-01-01 00:00:00
 
-m = civil_month(y);                       // 2015-01-01 00:00:00
-d = civil_day(m);                         // 2015-01-01 00:00:00
-hh = civil_hour(d);                       // 2015-01-01 00:00:00
-mm = civil_minute(hh);                    // 2015-01-01 00:00:00
-ss = civil_second(mm);                    // 2015-01-01 00:00:00
+m = civil_month(y);                    // 2015-01-01 00:00:00
+d = civil_day(m);                      // 2015-01-01 00:00:00
+hh = civil_hour(d);                    // 2015-01-01 00:00:00
+mm = civil_minute(hh);                 // 2015-01-01 00:00:00
+ss = civil_second(mm);                 // 2015-01-01 00:00:00
 ```
 
 ### Comparison
 
-Comparison between differently aligned civil time types is allowed, and
-comparison always considers all six YMDHMS fields.
+Comparison always considers all six YMDHMS fields, regardless of the type's
+alignment. Comparison between differently aligned civil time types is allowed.
 
 Note: Comparison between differently aligned types is not a critical part of
 this API. It exists as a convenience, but it could be removed at the cost of
 requiring more explicit casts between civil time types.
-
 
 ```cpp
 civil_day feb_3(2015, 2, 3);  // 2015-02-03 00:00:00
@@ -327,8 +352,8 @@ int m = c - civil_month(c);  // Won't compile: different types.
 The Civil Time Library provides the `prev_weekday()` and `next_weekday()`
 functions for navigating a calendar by the day of the week. Both functions
 accept a `civil_day` argument as well as the desired `weekday`. They both return
-a different `civil_day` that falls on the given `weekday`, even if the argument
-was already on the requested weekday.
+a strictly different `civil_day` that falls on the given `weekday`, even if the
+argument was already on the requested weekday.
 
 ```cpp
 //     August 2015
@@ -350,27 +375,5 @@ civil_day ceil_thursday = prev_weekday(d, weekday::thursday) + 7;
 // Gets the previous Thursday if d is not already Thursday
 civil_day floor_thursday = next_weekday(d, weekday::thursday) - 7;
 ```
-
-## Miscellaneous
-
-One of the classic questions that arises when talking about a Civil Time Library
-(aka a date library or a date/time library) is this: "What happens when you add
-a month to Jan 31?" This is an interesting question because there could be a
-number of possible answers, such as:
-
-* Error. The caller gets some error, maybe an exception, maybe an invalid date
-  object, or maybe `false` is returned. This may make sense because there's no
-  single unambiguously correct answer.
-* Maybe Feb 28 (or 29 if a leap year). This may make sense because the operation
-  goes from the last day of January to the last day of February.
-* Maybe March 3 (or 2 if a leap year). This may make sense because the operation
-  goes to the equivalent of Feb 31.
-
-Any answer that is not what the programmer expected is the wrong answer.
-
-The Civil Time Library described here avoids this question by making it
-impossible to ask such a question. This is done by aligning all civil time
-objects to one of the six civil time unit boundaries.
-
 
 [Proleptic Gregorian Calendar]: https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
