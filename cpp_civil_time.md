@@ -54,9 +54,9 @@ described.
 *Time zones* are geo-political regions within which human-defined rules are
 shared to convert between the previously described absolute time and civil time
 domains. A time-zone's rules include things like the region's offset from the
-UTC time standard, daylight-saving adjustments, and short abbreviation strings.
-Time zones often have a history of disparate rules that apply only for certain
-periods because the rules may change at the whim of a region's local
+[UTC] time standard, daylight-saving adjustments, and short abbreviation
+strings. Time zones often have a history of disparate rules that apply only for
+certain periods because the rules may change at the whim of a region's local
 government. For this reason, time zone rules are often compiled into data
 snapshots that are used at runtime to perform conversions between absolute and
 civil times. A proposal for a standard time zone library is presented in
@@ -75,10 +75,10 @@ To build a Civil Time Library that is easy to understand and use, we made the
 following simplifying assumptions:
 
 * Civil times use the [Proleptic Gregorian Calendar] only. Other calendars do
-  exist in the real world, but their rarity of use does not warrant complicating
-  the common case. Additionally, international standards such as
-  [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) rely on the
-  Gregorian calendar, so this seems like a reasonable simplification.
+  exist in the real world, but their rarity of use does not warrant
+  complicating the common case. Additionally, international standards such as
+  [UTC] rely on the Gregorian calendar, so this seems like a reasonable
+  simplification.
 * Civil times are time zone independent. This frees programmers from the
   complexities of daylight-saving time, UTC offset transitions, and even leap
   seconds, while working in the civil time domain. Programmers can instead
@@ -385,3 +385,4 @@ want to handle that situation. In practice, we have found few places where
 programmers wanted to do unaligned arithmetic.
 
 [Proleptic Gregorian Calendar]: https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
+[UTC]: https://en.wikipedia.org/wiki/Coordinated_Universal_Time
