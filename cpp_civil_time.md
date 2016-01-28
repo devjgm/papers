@@ -110,29 +110,30 @@ in their *alignment* and their semantics regarding addition, subtraction, and
 difference.
 
 A civil time class is aligned to the civil-time field indicated in the class's
-name. Alignment is performed by setting all the inferior fields to their
-minimum valid value. Hours, minutes, and seconds will be set to 0, and month
-and day will be set to 1. The following are examples of how each of the six
-types would align the civil time representing February 3, 2015 at 04:05:06 in
-the morning (Note: the string format used here is not important).
+name. Alignment is performed by setting all the inferior fields to their minimum
+valid value. Hours, minutes, and seconds will be set to 0, and month and day
+will be set to 1. The following are examples of how each of the six types would
+align the civil time representing November 22, 2015 at 12:34:56 in the afternoon
+(Note: the string format used here is not important).
 
  Class          | Example alignment
 ----------------|---------------------
- `civil_second` | `2015-02-03 04:05:06`
- `civil_minute` | `2015-02-03 04:05:00`
- `civil_hour`   | `2015-02-03 04:00:00`
- `civil_day`    | `2015-02-03 00:00:00`
- `civil_month`  | `2015-02-01 00:00:00`
+ `civil_second` | `2015-11-22 12:34:56`
+ `civil_minute` | `2015-11-22 12:34:00`
+ `civil_hour`   | `2015-11-22 12:00:00`
+ `civil_day`    | `2015-11-22 00:00:00`
+ `civil_month`  | `2015-11-01 00:00:00`
  `civil_year`   | `2015-01-01 00:00:00`
 
 Each civil time type performs arithmetic on the field to which it is aligned
-<sup>[1](#alignfoot)</sup>. This means that adding 1 to a `civil_day`
-increments the day field (normalizing as necessary), and subtracting 7 from a
-`civil_month` operates on the month field (normalizing as necessary). All
-arithmetic produces a new value that represents a valid civil time. Difference
-requires two similarly aligned civil time types and returns the scaler answer
-in units of the given alignment. For example, the difference between two
-`civil_hour` objects will give an answer in hours.
+(See [Appendix A](#Appendix-A) for more information about a common problem that
+is avoided by alignment). This means that adding 1 to a `civil_day` increments
+the day field (normalizing as necessary), and subtracting 7 from a `civil_month`
+operates on the month field (normalizing as necessary). All arithmetic produces
+a new value that represents a valid civil time. Difference requires two
+similarly aligned civil time types and returns the scaler answer in units of the
+given alignment. For example, the difference between two `civil_hour` objects
+will give an answer in hours.
 
 Finally, in addition to the six civil time types just described, there are a
 handful of helper functions and algorithms for performing common calculations.
@@ -177,10 +178,10 @@ class civil_time {
   civil_time operator--(int);
 
   // Binary arithmetic operators.
-  inline friend civil_time operator+(civil_time, int) { ... }
-  inline friend civil_time operator+(int, civil_time) { ... }
-  inline friend civil_time operator-(civil_time, int) { ... }
-  inline friend int operator-(civil_time, civil_time) { ... }
+  inline friend civil_time operator+(const civil_time&, int) { ... }
+  inline friend civil_time operator+(int, const civil_time&) { ... }
+  inline friend civil_time operator-(const civil_time&, int) { ... }
+  inline friend int operator-(const civil_time&, const civil_time&) { ... }
 
  private:
   ...
@@ -189,17 +190,17 @@ class civil_time {
 // Relational operators that work with differently aligned objects.
 // Always compares all six YMDHMS fields.
 template <typename Alignment1, typename Alignment2>
-bool operator<(civil_time<Alignment1>, civil_time<Alignment2>);
+bool operator<(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
 template <typename Alignment1, typename Alignment2>
-bool operator<=(civil_time<Alignment1>, civil_time<Alignment2>);
+bool operator<=(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
 template <typename Alignment1, typename Alignment2>
-bool operator>=(civil_time<Alignment1>, civil_time<Alignment2>);
+bool operator>=(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
 template <typename Alignment1, typename Alignment2>
-bool operator>(civil_time<Alignment1>, civil_time<Alignment2>);
+bool operator>(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
 template <typename Alignment1, typename Alignment2>
-bool operator==(civil_time<Alignment1>, civil_time<Alignment2>);
+bool operator==(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
 template <typename Alignment1, typename Alignment2>
-bool operator!=(civil_time<Alignment1>, civil_time<Alignment2>);
+bool operator!=(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
 
 struct year_tag {};
 struct month_tag {};
@@ -365,10 +366,12 @@ civil_day floor_thursday = next_weekday(d, weekday::thursday) - 7;
 
 ---
 
-<a name="alignfoot">1</a>: One of the classic questions that arises when
-talking about a Civil Time Library (aka a date library or a date/time library)
-is this: "What happens when you add a month to Jan 31?" This is an interesting
-question because there could be a number of possible answers, such as:
+### Appendix A
+
+One of the classic questions that arises when talking about a Civil Time Library
+(aka a date library or a date/time library) is this: "What happens when you add
+a month to Jan 31?" This is an interesting question because there could be a
+number of possible answers, such as:
 
 * Error. The caller gets some error, maybe an exception, maybe an invalid date
   object, or maybe `false` is returned. This may make sense because there's no
