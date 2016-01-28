@@ -4,21 +4,21 @@ Authors: Greg Miller (jgm@google.com), Bradley White (bww@google.com)
 
 ## Motivation
 
-Programming with time on a human scale is notoriously difficult and error
-prone: time zones are complicated, daylight-saving time (DST) is complicated,
-calendars are complicated, and leap seconds are complicated. These complexities
-quickly surface in code because programmers do not have a simple mental model
-with which to reason about the time-programming challenges they are facing.
-This lack of a simple mental model begets the lack of a simple time-programming
+Programming with time on a human scale is notoriously difficult and error prone:
+time zones are complicated, daylight-saving time (DST) is complicated, calendars
+are complicated, and leap seconds are complicated. These complexities quickly
+surface in code because programmers do not have a simple conceptual model with
+which to reason about the time-programming challenges they are facing. This lack
+of a simple conceptual model begets the lack of a simple time-programming
 library, leaving only complicated libraries that programmers struggle to
 understand and use correctly.
 
 A few years ago we set out to fix these problems within Google by doing the
 following:
 
-* Defining a simple mental model that will help programmers reason about
+* Defining a simple conceptual model that will help programmers reason about
   arbitrarily complex situations involving time, time zones, DST, etc.
-* Producing a simple library (or two) that implements the mental model.
+* Producing a simple library (or two) that implements the conceptual model.
 
 This paper describes the Time Zone Library that has been widely used within
 Google for a couple years. Our goal with this paper is to inform the C++
@@ -28,10 +28,10 @@ results of our real-world usage.
 NOTE: This paper depends on the related paper proposing a standard Civil Time
 Library (XXX: jgm add a link here).
 
-## Mental Model
+## Conceptual Model
 
-The mental model for time-programming that we teach within Google consists of
-three simple concepts that we will define here (Note: this model and these
+The conceptual model for time-programming that we teach within Google consists
+of three simple concepts that we will define here (Note: this model and these
 definitions are not specific to C++).
 
 *Absolute time* uniquely and universally represents a specific instant in time.
