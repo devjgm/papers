@@ -1,4 +1,4 @@
-# C++ Standard Proposal&mdash;A Civil Time Library
+# C++ Standard Proposal &mdash; A Civil Time Library
 
 ## Motivation
 
