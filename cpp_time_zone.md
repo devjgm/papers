@@ -82,14 +82,22 @@ rules are defined by local governments and they may change over time. A time
 zone, therefore, represents the complete history of time zone rules and when
 each rule applies for a given region.
 
-Ultimately, a time zone represents the rules necessary to convert from an
-*absolute time* to a *civil time* and vice versa.
+Ultimately, a time zone represents the rules necessary to convert any *absolute
+time* to a *civil time* and vice versa.
+
+In this model, [UTC] itself is naturally represented as a time zone having a
+constant zero offset, no DST, and an abbreviation string of "UTC". Treating UTC
+like any other time zone enables programmers to write correct,
+time-zone-agnostic code without needing to special-case UTC.
 
 The core of the Time Zone Library presented here is a single class named
-`time_zone`, which has two member functions to convert between absolute and
-civil times. The Time Zone Library also defines a convenience syntax for doing
-these conversions with `operator|`, as we will see below. There are also
-functions to format and parse absolute times as strings.
+`time_zone`, which has two member functions to convert between absolute time and
+civil time. Absolute times are represented by `std::chrono::time_point` (on the
+system_clock), and civil times are represented using `civil_second` as described
+in the proposed Civil Time Library (XXX: jgm add link to that paper). The Time
+Zone Library also defines a convenience syntax for doing conversions through a
+time zone. There are also functions to format and parse absolute times as
+strings.
 
 ## API
 
@@ -145,26 +153,33 @@ time_zone utc_time_zone();
 
 // Returns a time zone representing the local time zone.
 time_zone local_time_zone();
-
 ```
-
-The full information provided by the `time_zone::time_conversion` and
-`time_zone::civil_conversion` structs is frequently not needed by callers. To
-simplify the common case of converting between `std::chrono::time_point` and
-`civil_second`, we provide the following two overloads of `operator|` to allow
-"piping" either type to a `time_zone` in order to convert to the other type.
 
 Converting from an absolute time to a civil time (e.g.,
 `std::chrono::time_point` to `civil_second`) is an exact calculation with no
-time zone ambiguities. However, conversion from civil time to absolute time may
-not be exact. Time zone rules around UTC offset transitions may result in
+possible time zone ambiguities. However, conversion from civil time to absolute
+time may not be exact. Conversions around UTC offset transitions may be given
 ambiguous civil times (e.g., the 1:00 am hour is repeated during the Autumn DST
-transition in the United States), or even civil times that do not exist (e.g.,
-the 2:0am hour is skipped during the Spring DST transition in the United
-States). The `time_zone::civil_conversion` struct provides all the necessary
-information about the conversion to callers. However, the convenience syntax
-must select an appropriate "default" time point to return.
-XXX: jgm, explain the default value chosen and why this is good.
+transition in the United States), and some civil times may not exist in a
+particular time zone (e.g., the 2:00 am hour is skipped during the Spring DST
+transition in the United States). The `time_zone::civil_conversion` struct gives
+callers all relevant information about the conversion operation.
+
+However, the full information provided by the `time_zone::time_conversion` and
+`time_zone::civil_conversion` structs is frequently not needed by callers. To
+simplify the common case of converting between `std::chrono::time_point` and
+`civil_second`, the Time Zone Library provides two overloads of `operator|` to
+allow "piping" either type to a `time_zone` in order to convert to the other
+type.
+
+The implementation of these convenience functions must select an appropriate
+"default" time point to return in cases of ambiguous/skipped civil time
+conversions. The value chosen is such that the relative ordering of civil times
+is preserved when they are converted to absolute times.
+
+Note: This convenience syntax exists to shorten common code samples, and to
+select a generally good default for programmers when necessary. It is not an
+essential part of the Time Zone Library proposed in this paper.
 
 ```cpp
 template <typename D>
@@ -179,10 +194,6 @@ inline time_point<sys_seconds> operator|(const civil_second& cs, const time_zone
   return conv.pre;
 }
 ```
-
-Note: This convenience syntax exists to shorten common code samples, and to
-select a generally good default for programmers when necessary. It is not an
-essential part of the Time Zone Library proposed in this paper.
 
 Finally, functions are provided for formatting and parsing absolute times with
 respect to a given time zone. These functions use `strftime()`-like format
@@ -206,6 +217,7 @@ bool parse(const std::string& format, const std::string& input,
 ```
 
 ## Examples
+
 
 [Proleptic Gregorian Calendar]: https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
 [UTC]: https://en.wikipedia.org/wiki/Coordinated_Universal_Time
