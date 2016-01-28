@@ -25,7 +25,7 @@ Google for a couple years. Our goal with this paper is to inform the C++
 Standards Committee about the design and trade-offs we considered and the
 results of our real-world usage.
 
-NOTE: This paper depends on the related paper propsing a standard Civil Time
+NOTE: This paper depends on the related paper proposing a standard Civil Time
 Library (XXX: jgm add a link here).
 
 ## Mental Model
@@ -74,7 +74,7 @@ a mapping between the absolute and civil time domains.
 ## Overview
 
 Time zones are canonically identified by a string of the form
-[Contentent]/[City], such as "America/New_York", "Europe/London", and
+[Continent]/[City], such as "America/New_York", "Europe/London", and
 "Australia/Sydney". The data encapsulated by a time zone describes the offset
 from the [UTC] time standard (in seconds east), a short abbreviation string
 (e.g., "EST", "PDT"), and information about daylight-saving time (DST). These
@@ -105,36 +105,36 @@ using time_point = std::chrono::time_point<std::chrono::system_clock, D>;
 using sys_seconds = std::chrono::duration<std::chrono::system_clock::rep,
                                           std::chrono::seconds::period>;
 
-class time_zone {                                                                        
+class time_zone {
  public:
   // A value type.
-  time_zone() = default;  // Equivalent to UTC                                           
-  time_zone(const time_zone&) = default; 
-  time_zone& operator=(const time_zone&) = default;                                       
-  
+  time_zone() = default;  // Equivalent to UTC
+  time_zone(const time_zone&) = default;
+  time_zone& operator=(const time_zone&) = default;
+
   struct time_conversion {
     civil_second cs;
     int offset;        // seconds east of UTC
     bool is_dst;       // is offset non-standard?
-    std::string abbr;  // time-zone abbreviation (e.g., "PST")                            
+    std::string abbr;  // time-zone abbreviation (e.g., "PST")
   };
   template <typename D>
-  time_conversion convert(const time_point<D>& tp) const;                                     
+  time_conversion convert(const time_point<D>& tp) const;
 
-  struct civil_conversion { 
+  struct civil_conversion {
     enum class kind {
-      UNIQUE,    // the civil time was singular (pre == trans == post)                    
-      SKIPPED,   // the civil time did not exist                                          
-      REPEATED,  // the civil time was ambiguous                                          
+      UNIQUE,    // the civil time was singular (pre == trans == post)
+      SKIPPED,   // the civil time did not exist
+      REPEATED,  // the civil time was ambiguous
     } kind;
-    time_point<sys_seconds> pre;   // Uses the pre-transition offset                         
-    time_point<sys_seconds> trans; 
-    time_point<sys_seconds> post;  // Uses the post-transition offset                       
+    time_point<sys_seconds> pre;   // Uses the pre-transition offset
+    time_point<sys_seconds> trans;
+    time_point<sys_seconds> post;  // Uses the post-transition offset
   };
-  civil_conversion convert(const civil_second& cs) const;                                                                                                                        
- 
+  civil_conversion convert(const civil_second& cs) const;
+
  private:
-  ...                                                         
+  ...
 };
 
 // Loads the named time zone. Returns false on error.
