@@ -420,5 +420,13 @@ civil_day ceil_thursday = prev_weekday(d, weekday::thursday) + 7;
 civil_day floor_thursday = next_weekday(d, weekday::thursday) - 7;
 ```
 
+### Adding a month to Jan 31
+
+See the Design Decisions section above for an explanation of why this is an
+ambiguous question.
+
+XXX: jgm, fill this in with the various options.
+
+
 [Proleptic Gregorian Calendar]: https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
 [UTC]: https://en.wikipedia.org/wiki/Coordinated_Universal_Time
