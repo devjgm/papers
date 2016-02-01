@@ -76,10 +76,11 @@ civil times. There is currently no standard library supporting arbitrary time
 zones.
 
 The C++ standard already has the `<chrono>` library, which is a good
-implementation of *absolute time*. This paper proposes a standard *Civil Time*
-Library that complements `<chrono>`. A separate paper (XXX: jgm insert the paper
-number) proposes a standard *Time Zone* Library that bridges `<chrono>` and the
-Civil Time Library proposed in this paper.
+implementation of an *Absolute Time* Library. This paper proposes a standard
+*Civil Time* Library that complements `<chrono>`. A separate paper (XXX: jgm
+insert the paper number) proposes a standard *Time Zone* Library that bridges
+`<chrono>` and the Civil Time Library, and will completes the three pillars of
+the conceptual model just described.
 
 ## Impact on the Standard
 
@@ -99,6 +100,17 @@ used calendar is the [Proleptic Gregorian Calendar]. Supporting rarely used
 calendars would add complexity to the library with little value. Additionally,
 international standards such as [UTC] rely on the Gregorian Calendar. Therefore,
 we've chosen not to support other calendars.
+
+### Leap seconds are disregarded
+
+Unlike leap days, which are part of the [Proleptic Gregorian Calendar], leap
+seconds are unpredictable and would require time zone knowledge to properly
+support in the civil time domain. Time zone awareness in the civil time domain
+would add non-trivial conceptual complexity for a rare use case. The simplicity
+of this Civil Time Library stems from presenting a regularized human-scale time
+representation that is devoid of complexities and discontinuities, such as those
+caused by DST and leap seconds. We believe it would be a mistake to expose leap
+second complexities in the civil time domain.
 
 ### Civil times are always valid
 

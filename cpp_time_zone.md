@@ -1,38 +1,63 @@
 # C++ Standard Proposal &mdash; A Time Zone Library
 
-Authors: Greg Miller (jgm@google.com), Bradley White (bww@google.com)
+Metadata        | Value
+:---------------|:------
+Document number | Nnnnn=yy-nnnn
+Date            | yyyy-mm-dd
+Project         | Programming Language C++, Library Working Group
+Reply-to        | Greg Miller (jgm at google dot com), Bradley White (bww at google dot com)
 
-## Motivation
+## Introduction
 
-Programming with time on a human scale is notoriously difficult and error prone:
-time zones are complicated, daylight-saving time (DST) is complicated, calendars
-are complicated, and leap seconds are complicated. These complexities quickly
-surface in code because programmers do not have a simple conceptual model with
-which to reason about the time-programming challenges they are facing. This lack
-of a simple conceptual model begets the lack of a simple time-programming
-library, leaving only complicated libraries that programmers struggle to
-understand and use correctly.
+Note: This proposal depends on the Civil Time Library that is proposed in (XXX: jgm
+add a link to the Civil Time Library proposal).
 
-A few years ago we set out to fix these problems within Google by doing the
-following:
+This document proposes a standard C+ library for computing with real-world time
+zones, such as "America/New_York", "Europe/London", and "Australia/Sydney". The
+data describing the rules of each time zone are available separately (e.g.,
+https://www.iana.org/time-zones), and these data will be used by the Time Zone
+Library presented here. The complexities of time zone rules, such as UTC offsets
+and daylight-saving time (DST), will be encapsulated in a single user-facing
+class. The sole responsibility of this class will be to convert between the
+*absolute time* and the *civil time* domains (XXX: See the civil time paper).
 
-* Defining a simple conceptual model that will help programmers reason about
-  arbitrarily complex situations involving time, time zones, DST, etc.
-* Producing a simple library (or two) that implements the conceptual model.
+This Time Zone Library described in this paper encourages good time-programming
+practices while making common mistakes difficult to make.
 
-This paper describes the Time Zone Library that has been widely used within
-Google for a couple years. Our goal with this paper is to inform the C++
-Standards Committee about the design and trade-offs we considered and the
-results of our real-world usage.
+## Motivation and Scope
 
-NOTE: This paper depends on the related paper proposing a standard Civil Time
-Library (XXX: jgm add a link here).
+Programming with time zones is notoriously difficult and error prone. There is
+no simple conceptual model to help programmers reason about this problem space,
+and there is very little library support. The existing C and C++ standards
+provide limited support for the "UTC" and "local" time zones only, but there is
+minimal support for arbitrary other time zones.
 
-## Conceptual Model
+Programmers must each become time zone "experts" in order to accomplish their
+goals. It is not uncommon to see the addition/subtraction of an offset and a
+time point preceded by volumes of text explaining why that operation is correct
+with some caveat about DST. An informal survey of such call sites in Google code
+showed that few of the operations were actually correct, and nearly all of the
+comments were misinformed.
 
-The conceptual model for time-programming that we teach within Google consists
-of three simple concepts that we will define here (Note: this model and these
-definitions are not specific to C++).
+Programmers need an effective conceptual model about how time zones work so they can
+correctly reason about their code. They also need a Time Zone Library that
+implements the conceptual model so their reasoning can be accurately translated
+into code.
+
+The Time Zone Library proposed here has been implemented and widely used within
+Google for the past few years. It is actively used by programmers from novice to
+expert.
+
+(XXX: jgm insert link to cctz)
+
+## The Conceptual Model and Terminology
+
+The Time Zone Library, as described in this proposal, is one of the three
+general concepts that together form a complete conceptual model for reasoning
+about even the most complex time-programming challenges. This conceptual model
+is easy to understand and works for any programming language, including C++.
+This model is made up of the following three concepts: *absolute time*, *civil
+time*, and *time zone*.
 
 *Absolute time* uniquely and universally represents a specific instant in time.
 It has no notion of calendars, or dates, or times of day. Instead, it is a
@@ -61,17 +86,43 @@ strings. Time zones often have a history of disparate rules that apply only for
 certain periods because the rules may change at the whim of a region's local
 government. For this reason, time zone rules are often compiled into data
 snapshots that are used at runtime to perform conversions between absolute and
-civil times. A proposal for a standard time zone library is presented in
-another paper (XXX: jgm add a link here).
+civil times. There is currently no standard library supporting arbitrary time
+zones.
 
 The C++ standard library already has `<chrono>`, which is a good implementation
-of *absolute time* (as well as the related duration concept). Another paper is
-proposing a standard Civil Time Library that complements `<chrono>` (XXX: jgm
-insert link to civil time paper). This paper is proposing a standard *time
-zone* library that follows the complex rules defined by time zones and provides
-a mapping between the absolute and civil time domains.
+of an *Absolute Time* Library. Another paper is proposing a standard Civil Time
+Library that complements `<chrono>` (XXX: jgm insert link to civil time paper).
+This paper is proposing a standard *Time Zone* library that bridges `<chrono>`
+and the proposed Civil Time Library, and completes the three pillars of the
+conceptual model just described.
 
-## Overview
+# Impact on the Standard
+
+The Time Zone Library proposed in this paper depends on the existing `<chrono>`
+library with no changes. It also depends on the proposed Civil Time Library that
+is proposed in (XXX: jgm add a link). This library is implementable using only
+C++98 and requires no language extensions.
+
+## Design Decisions
+
+### Use the separately distributed time zone data on the computer
+
+This proposal depends on externally provided data that describes the rules for
+each time zone. Commonly this is distributed as data files, one for each time
+zone, as part of the IANA Time Zone Database (https://www.iana.org/time-zones).
+These data may alternatively be located elsewhere on a computer (e.g., in a
+registry). A standard Time Zone Library should use the time zone data provided
+on the system.
+
+### Leap seconds are disregarded (though could be supported)
+
+Like most places, Google [disregards leap
+seconds](https://googleblog.blogspot.com/2011/09/time-technology-and-leaping-seconds.html),
+therefore the Time Zone Library presented here will also disregard them.
+However, if leap second support is necessary it could be added to this library
+with minimal modification to the interface.
+
+## Technical Specification
 
 Time zones are canonically identified by a string of the form
 [Continent]/[City], such as "America/New_York", "Europe/London", and
@@ -99,7 +150,7 @@ Zone Library also defines a convenience syntax for doing conversions through a
 time zone. There are also functions to format and parse absolute times as
 strings.
 
-## API
+## Synopsis
 
 The interface for the core `time_zone` class is as follows.
 
@@ -213,6 +264,7 @@ std::string format(const std::string& format, const time_point<D>& tp,
 // Uses a format string of "%Y-%m-%dT%H:%M:%E*S%Ez"
 template <typename D>
 std::string format(const time_point<D>& tp, const time_zone& tz);
+std::string format(const civil_second& cs, const time_zone& tz);
 
 template <typename D>
 bool parse(const std::string& format, const std::string& input,
@@ -225,7 +277,7 @@ bool parse(const std::string& format, const std::string& input,
 
 Time zones are created by passing the time zone's name to the `load_time_zone()`
 function along with a pointer to a `time_zone`. Since the named zone may not
-exist or may be specified incorrectly by the caller, the function may return
+exist or may be specified incorrectly by the caller, the function will return
 `false` on error.
 
 Additionally, callers may get time zones representing UTC or the process's local
@@ -241,7 +293,10 @@ if (load_time_zone("America/New_York", &nyc)) {
 const time_zone utc = utc_time_zone();
 ```
 
-### Creating an `time_point` from a `civil_second`
+### Creating to a `time_point` from a `civil_second`
+
+Converting from the absolute time domain to the civil time domain is one of the
+two fundamental operations of a time zone.
 
 ```cpp
 const civil_second cs(2015, 2, 3, 4, 5, 6);  // 2015-02-03 04:05:06
@@ -256,7 +311,10 @@ if (load_time_zone("America/New_York", &nyc)) {
 }
 ```
 
-### Creating a `civil_second` from a `time_point`
+### Creating to a `civil_second` from a `time_point`
+
+Converting from the civil time domain to the absolute time domain is one of the
+two fundamental operations of a time zone.
 
 ```cpp
 const time_t tt = 1234567890;
@@ -270,6 +328,55 @@ if (load_time_zone("America/New_York", &nyc)) {
   civil_second cs2 = tp | nyc;  // Absolute -> Civil
   // Note: cs1 != cs2
 }
+```
+
+### Handling daylight-saving time
+
+Converting from an absolute time to a civil time is never affected by DST
+complexities. On the other hand, conversions going the other direction could be
+specified as either skipped or repeated civil times, requiring the caller to
+make a choice about which is the desired answer. In most cases the programmer
+will not have to make this decision as the shorthand syntax (`operator|`) shown
+thus far will choose a reasonable default. However, if the chosen default is not
+desired, the programmer is free to choose their own.
+
+This example considers 2015-03-08 02:30:00 in New York, USA, which did not
+exist.
+
+```cpp
+const civil_second cs(2015, 3, 8, 2, 30, 0);  // 2015-03-08 02:30:00
+time_zone nyc;
+if (!load_time_zone("America/New_York", &nyc)) {
+  /* ... error ... */
+}
+
+// The default is chosen by the shorthand syntax
+const auto tp = cs | nyc;  // tp == 2015-03-08 03:00:00
+
+const time_zone::civil_conversion conv = nyc.convert(cs);
+// conv.kind ==  time_zone::civil_conversion::kind::SKIPPED
+// conv.pre ==   2015-03-08 03:30:00 -0400
+// conv.trans == 2015-03-08 03:00:00 -0400 (returned by shorthand syntax)
+// conv.post ==  2015-03-08 01:30:00 -0500
+```
+
+This example considers 2015-11-01 01:30:00 in New York, USA, which was repeated.
+
+```cpp
+const civil_second cs(2015, 11, 1, 1, 30, 0);  // 2015-11-01 01:30:00
+time_zone nyc;
+if (!load_time_zone("America/New_York", &nyc)) {
+  /* ... error ... */
+}
+
+// The default is chosen by the shorthand syntax
+const auto tp = cs | nyc;  // tp == 2015-11-01 01:30:00
+
+const time_zone::civil_conversion conv = nyc.convert(cs);
+// conv.kind ==  time_zone::civil_conversion::kind::REPEATED
+// conv.pre ==   2015-11-01 01:30:00 -0400 (returned by shorthand syntax)
+// conv.trans == 2015-11-01 01:00:00 -0500 (aka 02:00:00 -0400)
+// conv.post ==  2015-11-01 01:30:00 -0500
 ```
 
 ### Flight example
