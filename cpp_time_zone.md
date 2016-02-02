@@ -379,8 +379,8 @@ const time_zone::civil_conversion conv = nyc.convert(cs);
 
 ### Flight example
 
-This good example is borrowed from Howard Hinnant at
-http://howardhinnant.github.io/tz.html.
+This [good example](http://howardhinnant.github.io/tz.html#flightexample1) is
+borrowed from Howard Hinnant.
 
 > There's nothing like a real-world example to help demonstrate things. Imagine
 > a plane flying from New York, New York, USA to Tehran, Iran. To make it more
@@ -403,8 +403,8 @@ time_zone teh;
 if (!load_time_zone("Asia/Tehran", &teh)) {
   // error.
 }
-std::cout << "departure NYC time: " << format(departure, nyc);
-std::cout << "arrival Tehran time: " << format(arrival, teh);
+// format(departure, nyc) == 1978-12-30T12:01:00-05:00
+// format(arrival, teh)   == 1978-12-31T11:45:00+04:00
 ```
 
 ## Acknowledgements

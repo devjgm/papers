@@ -60,11 +60,11 @@ affairs (cf. http://www.merriam-webster.com/dictionary/civil). It is a
 human-scale representation of time that consists of the six fields &mdash; year,
 month, day, hour, minute, and second (sometimes shortened to "YMDHMS") &mdash;
 and it follows the rules of the [Proleptic Gregorian Calendar], with 24-hour
-days divided into hours, minutes, and seconds. Like absolute times, civil times
-are also independent of all time zones and their related complexities (e.g.,
-DST). While `std::tm` contains the six YMDHMS civil-time fields (plus a few
-more), it does not have behavior to enforce the rules of civil time as just
-described.
+days divided into 60-minute hours and 60-second minutes. Like absolute times,
+civil times are also independent of all time zones and their related
+complexities (e.g., DST). While `std::tm` contains the six YMDHMS civil-time
+fields (plus a few more), it does not have behavior to enforce the rules of
+civil time as just described.
 
 *Time zones* are geo-political regions within which human-defined rules are
 shared to convert between the previously described absolute time and civil time
