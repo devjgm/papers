@@ -230,29 +230,29 @@ class template that is parameterized on the alignment field as a tag struct.
 This class template is not a public API point, but it serves here to illustrate
 the API of each of the public civil time types.
 
-XXX: jgm, update this code with proper constexpr usage.
-
 ```cpp
 namespace detail {
-template <typename Alignment>
+template <typename T>
 class civil_time {
  public:
-  explicit civil_time(int y, int m = 1, int d = 1, int hh = 0, int mm = 0, int ss = 0);
-  civil_time() : civil_time(1970) {}
-  civil_time(const civil_time&) = default;
+  explicit constexpr civil_time(int y, int m = 1, int d = 1,
+                                int hh = 0, int mm = 0, int ss = 0);
+
+  constexpr civil_time() : civil_time(1970) {}
+  constexpr civil_time(const civil_time&) = default;
   civil_time& operator=(const civil_time&) = default;
 
   // Explicit conversion between civil times of different alignment.
   template <typename U>
-  explicit civil_time(civil_time<U>);
+  explicit constexpr civil_time(civil_time<U>);
 
   // Field Accessors
-  int year() const;
-  int month() const;
-  int day() const;
-  int hour() const;
-  int minute() const;
-  int second() const;
+  constexpr int year() const;
+  constexpr int month() const;
+  constexpr int day() const;
+  constexpr int hour() const;
+  constexpr int minute() const;
+  constexpr int second() const;
 
   // Arithmetic
   civil_time& operator+=(int);
@@ -263,29 +263,29 @@ class civil_time {
   civil_time operator--(int);
 
   // Binary arithmetic operators.
-  inline friend civil_time operator+(const civil_time&, int) { ... }
-  inline friend civil_time operator+(int, const civil_time&) { ... }
-  inline friend civil_time operator-(const civil_time&, int) { ... }
-  inline friend int operator-(const civil_time&, const civil_time&) { ... }
+  inline friend constexpr civil_time operator+(const civil_time&, int) { ... }
+  inline friend constexpr civil_time operator+(int, const civil_time&) { ... }
+  inline friend constexpr civil_time operator-(const civil_time&, int) { ... }
+  inline friend constexpr int operator-(const civil_time&, const civil_time&) { ... }
 
  private:
-  ...
+  ....
 };
 
 // Relational operators that work with differently aligned objects.
 // Always compares all six YMDHMS fields.
-template <typename Alignment1, typename Alignment2>
-bool operator<(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
-template <typename Alignment1, typename Alignment2>
-bool operator<=(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
-template <typename Alignment1, typename Alignment2>
-bool operator>=(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
-template <typename Alignment1, typename Alignment2>
-bool operator>(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
-template <typename Alignment1, typename Alignment2>
-bool operator==(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
-template <typename Alignment1, typename Alignment2>
-bool operator!=(const civil_time<Alignment1>&, const civil_time<Alignment2>&);
+template <typename T1, typename T2>
+constexpr bool operator<(const civil_time<T1>&, const civil_time<T2>&);
+template <typename T1, typename T2>
+constexpr bool operator<=(const civil_time<T1>&, const civil_time<T2>&);
+template <typename T1, typename T2>
+constexpr bool operator>=(const civil_time<T1>&, const civil_time<T2>&);
+template <typename T1, typename T2>
+constexpr bool operator>(const civil_time<T1>&, const civil_time<T2>&);
+template <typename T1, typename T2>
+constexpr bool operator==(const civil_time<T1>&, const civil_time<T2>&);
+template <typename T1, typename T2>
+constexpr bool operator!=(const civil_time<T1>&, const civil_time<T2>&);
 
 struct year_tag {};
 struct month_tag {};
@@ -293,7 +293,6 @@ struct day_tag {};
 struct hour_tag {};
 struct minute_tag {};
 struct second_tag {};
-
 }  // namespace detail
 
 // The six public civil time types.
@@ -303,7 +302,6 @@ using civil_day = detail::civil_time<detail::day_tag>;
 using civil_hour = detail::civil_time<detail::hour_tag>;
 using civil_minute = detail::civil_time<detail::minute_tag>;
 using civil_second = detail::civil_time<detail::second_tag>;
-
 ```
 
 In addition to the six civil time types defined above, the following helper
@@ -311,22 +309,25 @@ functions are also defined to help with common computations.
 
 ```cpp
 enum class weekday {
-  sunday,
   monday,
   tuesday,
   wednesday,
   thursday,
   friday,
-  saturday
+  saturday,
+  sunday,
 };
 
-weekday get_weekday(const civil_day&);
-int get_yearday(const civil_day&);
+// Returns the weekday of the argument.
+constexpr weekday get_weekday(const civil_day&);
 
-// Returns the civil_day that strictly follows or precedes the argument,
-// and that falls on the given weekday.
-civil_day next_weekday(const civil_day&, weekday);
-civil_day prev_weekday(const civil_day&, weekday);
+// Returns the civil_day that strictly follows/precedes the argument and that
+// falls on the given weekday.
+constexpr civil_day next_weekday(const civil_day&, weekday);
+constexpr civil_day prev_weekday(const civil_day&, weekday);
+
+// Returns the yearday of a civil_day.
+constexpr int get_yearday(const civil_day&);
 ```
 
 ## Examples
