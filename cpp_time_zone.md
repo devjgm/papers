@@ -53,11 +53,10 @@ expert.
 ## The Conceptual Model and Terminology
 
 The Time Zone Library, as described in this proposal, is one of the three
-general concepts that together form a complete conceptual model for reasoning
-about even the most complex time-programming challenges. This conceptual model
-is easy to understand and works for any programming language, including C++.
-This model is made up of the following three concepts: *absolute time*, *civil
-time*, and *time zone*.
+concepts that together form a complete conceptual model for reasoning about even
+the most complex time-programming challenges. This conceptual model is easy to
+understand and is even programming language neutral. This model is made up of
+the following three concepts: *absolute time*, *civil time*, and *time zone*.
 
 *Absolute time* uniquely and universally represents a specific instant in time.
 It has no notion of calendars, or dates, or times of day. Instead, it is a
@@ -72,11 +71,11 @@ affairs (cf. http://www.merriam-webster.com/dictionary/civil). It is a
 human-scale representation of time that consists of the six fields &mdash;
 year, month, day, hour, minute, and second (sometimes shortened to "YMDHMS")
 &mdash; and it follows the rules of the [Proleptic Gregorian Calendar], with
-24-hour days divided into hours and minutes. Like absolute times, civil times
-are also independent of all time zones and their related complexities (e.g.,
-DST). While `std::tm` contains the six YMDHMS civil-time fields (plus a few
-more), it does not have behavior to enforce the rules of civil time as just
-described.
+24-hour days divided into hours, minutes, and seconds. Like absolute times,
+civil times are also independent of all time zones and their related
+complexities (e.g., DST). While `std::tm` contains the six YMDHMS civil-time
+fields (plus a few more), it does not have behavior to enforce the rules of
+civil time as just described.
 
 *Time zones* are geo-political regions within which human-defined rules are
 shared to convert between the previously described absolute time and civil time
