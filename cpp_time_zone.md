@@ -1,4 +1,4 @@
-# C++ Standard Proposal &mdash; A Time Zone Library
+# C++ Standard Proposal &mdash; A Time-Zone Library
 
 Metadata        | Value
 :---------------|:------
@@ -18,9 +18,9 @@ data describing the rules of each time zone are distributed separately (e.g.,
 https://www.iana.org/time-zones), and are not a part of this proposal. The core
 of this paper proposes a single user-facing class that can represent any
 real-world time zone and is able to convert between the *absolute time* and the
-*civil time* domains. All the complex time zone computations will be handled by
-this Time Zone Library. The exposed interface will give callers access to all
-the time zone information they need, while encouraging proper time-programming
+*civil time* domains. All the complex time-zone computations will be handled by
+this Time-Zone Library. The exposed interface will give callers access to all
+the time-zone information they need, while encouraging proper time-programming
 practices.
 
 ## Motivation and Scope
@@ -31,28 +31,28 @@ and there is very little library support. The existing C and C++ standards
 provide limited support for the "UTC" and "local" time zones only, but there is
 minimal support for arbitrary other time zones.
 
-Programmers must each become time zone "experts" in order to accomplish their
+Programmers must each become time-zone "experts" in order to accomplish their
 goals. It is not uncommon to see the addition/subtraction of an offset and a
 time point preceded by volumes of comment explaining why that operation is
 correct, usually with some caveat about DST. An informal survey of such call
 sites in Google code showed that few of the operations were actually correct,
 and nearly all of the comments were misinformed.
 
-Programmers must not be expected to do their own arithmetic with time zone
+Programmers must not be expected to do their own arithmetic with time-zone
 offsets. This is a frequent source of bugs and is an anti-pattern we call "epoch
 shifting" (CppCon 2015 talk: https://youtu.be/2rnIHsqABfM?t=12m30s). A proper
-time zone library must do all necessary time zone arithmetic itself, giving
+time-zone library must do all necessary time-zone arithmetic itself, giving
 callers higher-level abstractions on which to build their programs. These
 higher-level abstractions must form an effective conceptual model about how time
 zones work so programmers can correctly reason about their code.
 
-The Time Zone Library proposed here has been implemented and widely used within
+The Time-Zone Library proposed here has been implemented and widely used within
 Google for the past few years. It is actively used by programmers from novice to
 expert to implement real-world code on a daily basis.
 
 ## The Conceptual Model and Terminology
 
-The Time Zone Library, as described in this proposal, is one of the three
+The Time-Zone Library, as described in this proposal, is one of the three
 concepts that together form a complete conceptual model for reasoning about even
 the most complex time-programming challenges. This conceptual model is easy to
 understand and is even programming language neutral. This model is made up of
@@ -83,7 +83,7 @@ domains. A time-zone's rules include things like the region's offset from the
 [UTC] time standard, daylight-saving adjustments, and short abbreviation
 strings. Time zones often have a history of disparate rules that apply only for
 certain periods because the rules may change at the whim of a region's local
-government. For this reason, time zone rules are usually compiled into data
+government. For this reason, time-zone rules are usually compiled into data
 snapshots that are used at runtime to perform conversions between absolute and
 civil times. There is currently no C++ standard library supporting arbitrary
 time zones.
@@ -97,28 +97,28 @@ pillars of the conceptual model just described.
 
 # Impact on the Standard
 
-The Time Zone Library proposed in this paper depends on the existing `<chrono>`
+The Time-Zone Library proposed in this paper depends on the existing `<chrono>`
 library with no changes. It also depends on the proposed Civil Time Library that
 is proposed in (XXX: jgm add a link). This library is implementable using only
 C++98 and requires no language extensions.
 
 ## Design Decisions
 
-### Use separately distributed time zone data
+### Use separately distributed time-zone data
 
 This proposal depends on externally provided data that describes the rules for
 each time zone. Commonly this is distributed as data files, one for each time
-zone, as part of the IANA Time Zone Database (https://www.iana.org/time-zones).
+zone, as part of the IANA Time-Zone Database (https://www.iana.org/time-zones).
 These data may alternatively be located elsewhere on a computer (e.g., in a
-registry). A standard Time Zone Library should use the time zone data provided
-on the system. The time zone data should not be included as part of the standard
-Time Zone Library.
+registry). A standard Time-Zone Library should use the time-zone data provided
+on the system. The time-zone data should not be included as part of the standard
+Time-Zone Library.
 
 ### Leap seconds are disregarded (though could be supported)
 
 Like most places, Google [disregards leap
 seconds](https://googleblog.blogspot.com/2011/09/time-technology-and-leaping-seconds.html),
-therefore the Time Zone Library presented here will also disregard them.
+therefore the Time-Zone Library presented here will also disregard them.
 However, if leap second support is necessary it could be added to this library
 with minimal modification to the interface and some additional complexity for
 programmers.
@@ -131,7 +131,7 @@ Time zones are canonically identified by a string of the form
 from the [UTC] time standard, a short abbreviation string (e.g., "EST", "PDT"),
 and information about daylight-saving time (DST). These rules are defined by
 local governments and they may change over time. A time zone, therefore,
-represents the complete history of time zone rules and when each rule applies
+represents the complete history of time-zone rules and when each rule applies
 for a given region.
 
 Conceptually, a time zone represents the rules necessary to convert any *absolute
@@ -142,7 +142,7 @@ offset, no DST, and an abbreviation string of "UTC". Treating UTC like any other
 time zone enables programmers to write correct, time-zone-agnostic code without
 needing to special-case UTC.
 
-The core of the Time Zone Library presented here is a single class named
+The core of the Time-Zone Library presented here is a single class named
 `time_zone`, which has two member functions to convert between absolute time and
 civil time. Absolute times are represented by `std::chrono::time_point` (on the
 system_clock), and civil times are represented using `civil_second` as described
@@ -209,7 +209,7 @@ time_zone local_time_zone();
 
 Converting from an absolute time to a civil time (e.g.,
 `std::chrono::time_point` to `civil_second`) is an exact calculation with no
-possible time zone ambiguities. However, conversion from civil time to absolute
+possible time-zone ambiguities. However, conversion from civil time to absolute
 time may not be exact. Conversions around UTC offset transitions may be given
 ambiguous civil times (e.g., the 1:00 am hour is repeated during the Autumn DST
 transition in the United States), and some civil times may not exist in a
@@ -220,7 +220,7 @@ callers all relevant information about the conversion operation.
 The full information provided by the `time_zone::time_conversion` and
 `time_zone::civil_conversion` structs is frequently not needed by callers. To
 simplify the common case of converting between `std::chrono::time_point` and
-`civil_second`, the Time Zone Library provides two overloads of `operator|` to
+`civil_second`, the Time-Zone Library provides two overloads of `operator|` to
 allow "piping" either time type to a `time_zone` in order to convert to the
 other type.
 
@@ -231,7 +231,7 @@ is preserved when they are converted to absolute times.
 
 Note: This convenience syntax exists to shorten common code samples, and to
 select a generally good default for programmers when necessary. It is not an
-essential part of the Time Zone Library proposed in this paper.
+essential part of the Time-Zone Library proposed in this paper.
 
 ```cpp
 template <typename D>
@@ -253,7 +253,7 @@ specifiers, with the following extensions:
 
 Specifier | Description
 ----------|------------
-`%Ez`     | RFC3339-compatible numeric time zone (+hh:mm or -hh:mm)
+`%Ez`     | RFC3339-compatible numeric time-zone offset (+hh:mm or -hh:mm)
 `%E#S`    | Seconds with # digits of fractional precision
 `%E*S`    | Seconds with full fractional precision (a literal '*')
 `%E4Y`    | Four-character years (-999 ... -001, 0000, 0001 ... 9999)
@@ -407,7 +407,7 @@ if (!load_time_zone("Asia/Tehran", &teh)) {
 // format(arrival, teh)   == 1978-12-31T11:45:00+04:00
 ```
 
-## Acknowledgements
+## References
 
 * https://en.wikipedia.org/wiki/Coordinated_Universal_Time
 * https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar

@@ -453,10 +453,10 @@ civil_day floor_thursday = next_weekday(d, weekday::thursday) - 7;
 ### Adding a month to Jan 31
 
 See the Design Decisions section above for an explanation of why this is an
-ambiguous question. As described above, this Civil-Time Library makes it
-impossible to directly ask this ambiguous question because of alignment
-requirements. However, if a programmer really wants to ask this question, they
-need to be more explicit about what the answer will be. For example:
+ambiguous question. As described above, aligned arithmetic makes it impossible
+to ask this ambiguous question. However, if a programmer really wants to ask
+this question, they need to be more explicit about what the answer will be. For
+example:
 
 ```cpp
 const civil_day d(2015, 1, 31);
@@ -478,7 +478,7 @@ if (civil_month(ans_normalized) - civil_month(d) != 1) {
 }
 ```
 
-## Acknowledgements
+## References
 
 * https://en.wikipedia.org/wiki/Civil_time
 * http://www.merriam-webster.com/dictionary/civil
