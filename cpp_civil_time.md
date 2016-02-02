@@ -246,7 +246,7 @@ class civil_time {
   template <typename U>
   explicit constexpr civil_time(civil_time<U>);
 
-  // Field Accessors
+  // Field accessors.
   constexpr int year() const;
   constexpr int month() const;
   constexpr int day() const;
@@ -254,7 +254,7 @@ class civil_time {
   constexpr int minute() const;
   constexpr int second() const;
 
-  // Arithmetic
+  // Assigning arithmetic.
   civil_time& operator+=(int);
   civil_time& operator-=(int);
   civil_time& operator++();

@@ -50,8 +50,6 @@ The Time Zone Library proposed here has been implemented and widely used within
 Google for the past few years. It is actively used by programmers from novice to
 expert to implement real-world code on a daily basis.
 
-(XXX: jgm insert link to cctz)
-
 ## The Conceptual Model and Terminology
 
 The Time Zone Library, as described in this proposal, is one of the three
