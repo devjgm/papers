@@ -123,8 +123,17 @@ are no errors when constructing a civil time with field values that are out of
 range. This is enforced by normalizing input fields (similar to `mktime(3)`),
 for example, Jan 32 will normalize to Feb 1. This decision reduces the amount of
 boilerplate error checking, and it allows callers to do arithmetic on input field
-arguments without worrying about range. If normalization is undesired, callers 
+arguments without worrying about range. If normalization is undesired, callers
 may compare the resulting normalized fields to the input fields to signal an error.
+
+### Civil times do not have subseconds
+
+Civil times are represented by the six fields of year, month, day, hour, minute,
+and second. These are the six fields that are typically considered for
+human-scale time. Additionally, seconds are the level of precision within time
+zone data files; i.e., there are no subsecond time zone transitions. It would be
+possible to add subseconds to this Civil Time Library, but it would add some
+complexity for which we have found no demand.
 
 ### Civil times are aligned to a civil-field boundary
 
@@ -133,13 +142,13 @@ One of the classic questions that arises when talking about a civil time library
 a month to Jan 31?" This is an interesting question because there could be a
 number of possible answers:
 
-* Error. The caller gets some error, maybe an exception, maybe an invalid date
-  object, or maybe `false` is returned. This may make sense because there is no
-  single unambiguously correct answer to the question.
-* Maybe Feb 28 (or 29 if a leap year). This may make sense because the operation
-  goes from the last day of January to the last day of February.
 * Maybe March 3 (or 2 if a leap year). This may make sense because the operation
   goes to the equivalent of Feb 31.
+* Maybe Feb 28 (or 29 if a leap year). This may make sense because the operation
+  goes from the last day of January to the last day of February.
+* Maybe Error. The caller gets some error, maybe an exception, maybe an invalid
+  date object, or maybe `false` is returned. This may make sense because there
+  is no single unambiguously correct answer to the question.
 
 Practically speaking, any answer that is not what the programmer intended is the
 wrong answer.
@@ -443,10 +452,38 @@ civil_day floor_thursday = next_weekday(d, weekday::thursday) - 7;
 ### Adding a month to Jan 31
 
 See the Design Decisions section above for an explanation of why this is an
-ambiguous question.
+ambiguous question. As described above, this Civil Time Library makes it
+impossible to directly ask this ambiguous question because of alignment
+requirements. However, if a programmer really wants to ask this question, they
+need to be more explicit about what the answer will be. For example:
 
-XXX: jgm, fill this in with the various options.
+```cpp
+const civil_day d(2015, 1, 31);
 
+// Answer 1:
+// Adds 1 to the month field in the constructor, and let normalization happen.
+const auto ans_normalized = civil_day(d.year(), d.month() + 1, d.day());
+// ans_normalized == 2015-03-03 (aka Feb 31)
+
+// Answer 2:
+// Adds 1 to month field, capping at the end of next month
+const auto last_day_of_next_month = civil_day(civil_month(d) + 2) - 1;
+const auto ans_capped = std::min(ans_normalized, last_day_of_next_month);
+// ans_capped == 2015-02-28
+
+// Answer 3:
+if (civil_month(ans_normalized) - civil_month(d) != 1) {
+  ... error, month overflow...
+}
+```
+
+## Acknowledgements
+
+* https://en.wikipedia.org/wiki/Civil_time
+* http://www.merriam-webster.com/dictionary/civil
+* http://www.timeanddate.com/time/aboututc.html
+* https://en.wikipedia.org/wiki/Coordinated_Universal_Time
+* https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
 
 [Proleptic Gregorian Calendar]: https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
 [UTC]: https://en.wikipedia.org/wiki/Coordinated_Universal_Time
