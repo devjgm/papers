@@ -1,4 +1,4 @@
-# C++ Standard Proposal &mdash; A Civil Time Library
+# C++ Standard Proposal &mdash; A Civil-Time Library
 
 Metadata        | Value
 :---------------|:------
@@ -23,8 +23,8 @@ are complicated, and leap seconds are complicated. These complexities quickly
 surface in code because programmers do not have a simple conceptual model with
 which to reason about the time-programming challenges they are facing.
 Furthermore, this lack of a simple conceptual model begets the lack of a simple
-library, leaving only complicated libraries (or none at all) that programmers
-struggle to understand and use correctly.
+library, leaving only complicated libraries that programmers struggle to
+understand and use correctly (or none at all).
 
 A survey of application-level code within Google that computes with civil-time
 fields shows that programmer confusion is a fundamental cause of overly
@@ -33,7 +33,7 @@ complexities that are inherent in this problem space, and the fact that there
 has been little progress toward hiding these complexities behind a library that
 exposes a simpler conceptual model to programmers.
 
-The Civil Time Library proposed here addresses the above problems by presenting
+The Civil-Time Library proposed here addresses the above problems by presenting
 civil time as a *regular*, time-zone-independent concept that allows programmers
 to ignore the above complexities when it is safe to do so. This library has been
 implemented and widely used within Google for the past few years. It is actively
@@ -67,31 +67,31 @@ fields (plus a few more), it does not have behavior to enforce the rules of
 civil time as just described.
 
 *Time zones* are geo-political regions within which human-defined rules are
-shared to convert between the previously described absolute time and civil time
+shared to convert between the previously described absolute-time and civil-time
 domains. A time-zone's rules include things like the region's offset from the
 [UTC] time standard, daylight-saving adjustments, and short abbreviation
 strings. Time zones often have a history of disparate rules that apply only for
 certain periods, because the rules may change at the whim of a region's local
-government. For this reason, time zone rules are often compiled into data
+government. For this reason, time-zone rules are usually compiled into data
 snapshots that are used at runtime to perform conversions between absolute and
-civil times. There is currently no standard library supporting arbitrary time
-zones.
+civil times. There is currently no C++ standard library supporting arbitrary
+time zones.
 
 The C++ standard already has the `<chrono>` library, which is a good
-implementation of an *Absolute Time* Library. This paper proposes a standard
-*Civil Time* Library that complements `<chrono>`. A separate paper (XXX: jgm
+implementation of an *Absolute-Time* Library. This paper proposes a standard
+*Civil-Time* Library that complements `<chrono>`. A separate paper (XXX: jgm
 insert the paper number) proposes a standard *Time Zone* Library that bridges
-`<chrono>` and this Civil Time Library, and will complete the three pillars of
+`<chrono>` and this Civil-Time Library, and will complete the three pillars of
 the conceptual model just described.
 
 ## Impact on the Standard
 
-The Civil Time Library proposed here is not directly dependent on any other
+The Civil-Time Library proposed here is not directly dependent on any other
 standard C++ library. It is implementable using C++98, with optimizations such
 as `constexpr` available when compiled as C++11.
 
 A current sister proposal that describes a standard Time Zone Library (XXX: jgm
-add a doc reference) depends on the existence of this Civil Time Library.
+add a doc reference) depends on the existence of this Civil-Time Library.
 
 ## Design Decisions
 
@@ -106,19 +106,19 @@ we've chosen not to support other calendars.
 ### Leap seconds are disregarded
 
 Unlike leap days, which are part of the [Proleptic Gregorian Calendar], leap
-seconds are unpredictable and would require time zone knowledge to properly
-support in the civil time domain. Time zone awareness in the civil time domain
+seconds are unpredictable and would require time-zone knowledge to properly
+support in the civil-time domain. Time zone awareness in the civil-time domain
 would add non-trivial conceptual complexity for a rare use case. The simplicity
-of this Civil Time Library stems from presenting a regularized human-scale time
+of this Civil-Time Library stems from presenting a regularized human-scale time
 representation that is devoid of complexities and discontinuities, such as those
 caused by DST and leap seconds. We believe it would be a mistake to expose leap
-second complexities in the civil time domain. If knowledge of leap seconds were
-necessary, that support should exist in a separate time zone library rather than
-a civil time library.
+second complexities in the civil-time domain. If knowledge of leap seconds were
+necessary, that support should exist in a separate time-zone library rather than
+a civil-time library.
 
 ### Civil times are always valid
 
-It is not possible to create an invalid civil time instance. Similarly, there
+It is not possible to create an invalid civil-time instance. Similarly, there
 are no errors when constructing a civil time with field values that are out of
 range. This is enforced by normalizing input fields (similar to `mktime(3)`),
 for example, Jan 32 will normalize to Feb 1. This decision reduces the amount of
@@ -131,13 +131,13 @@ may compare the resulting normalized fields to the input fields to signal an err
 Civil times are represented by the six fields of year, month, day, hour, minute,
 and second. These are the six fields that are typically considered for
 human-scale time. Additionally, seconds are the level of precision within time
-zone data files; i.e., there are no subsecond time zone transitions. It would be
-possible to add subseconds to this Civil Time Library, but it would add some
+zone data files; i.e., there are no subsecond time-zone transitions. It would be
+possible to add subseconds to this Civil-Time Library, but it would add some
 complexity for which we have found no demand.
 
 ### Civil times are aligned to a civil-field boundary
 
-One of the classic questions that arises when talking about a civil time library
+One of the classic questions that arises when talking about a civil-time library
 (aka a date library or a date/time library) is this: "What happens when you add
 a month to Jan 31?" This is an interesting question because there could be a
 number of possible answers:
@@ -153,8 +153,8 @@ number of possible answers:
 Practically speaking, any answer that is not what the programmer intended is the
 wrong answer.
 
-The Civil Time Library proposed here avoids this problem by making it impossible
-to ask such an ambiguous question. All civil time objects are aligned to a
+The Civil-Time Library proposed here avoids this problem by making it impossible
+to ask such an ambiguous question. All civil-time objects are aligned to a
 particular civil-field boundary (such as aligned to a year, month, day, hour,
 minute, or second), and arithmetic operates on the field to which the object is
 aligned. This means that in order to "add a month" the object must first be
@@ -162,7 +162,7 @@ aligned to a month boundary, which is equivalent to the first day of that month.
 See the Technical Specification section below for more about alignment.
 
 There are indeed ways to accomplish the task of adding a month to Jan 31 with
-this Civil Time Library, but they require the programmer to be more explicit
+this Civil-Time Library, but they require the programmer to be more explicit
 about their intent so the answer is unsurprising. There is an example showing
 this later in this paper. In practice, we have found few places in Google code
 where programmers wanted unaligned arithmetic, but in those few cases the
@@ -170,7 +170,7 @@ explicit code helped ensure the programmer's intent matched the answer they got.
 
 ## Technical Specification
 
-The core of the Civil Time Library is based on the following six individual
+The core of the Civil-Time Library is based on the following six individual
 classes:
 
 * `civil_second`
@@ -188,17 +188,17 @@ field on which arithmetic operates.
 Each class can be constructed by passing from 0-6 optional integer arguments
 representing the YMDHMS fields (in that order) to the constructor. Omitted
 fields are assigned their minimum valid value. Hours, minutes, and seconds will
-be set to 0, month and day will be set to 1, and year will be set to 1970.
-A default-constructed civil time object will have YMDHMS fields representing
+be set to 0, month and day will be set to 1, and year will be set to 1970. So, a
+default-constructed civil-time object will have YMDHMS fields representing
 "1970-01-01 00:00:00".
 
-Each civil time class is aligned to the civil-time field indicated in the
+Each civil-time class is aligned to the civil-time field indicated in the
 class's name. Alignment is performed by setting all the inferior fields to their
 minimum valid value (see above for the minimum valid values). The following are
 examples of how each of the six types would align the fields representing
-November 22, 2015 at 12:34:56 in the afternoon (Note: the string format used
+November 22, 2015 at 12:34:56 in the afternoon. (Note: the string format used
 here is not important; it's just a shorthand way of showing the six YMDHMS
-fields).
+fields.)
 
  Class          | Example alignment
 ----------------|---------------------
@@ -209,7 +209,7 @@ fields).
  `civil_month`  | `2015-11-01 00:00:00`
  `civil_year`   | `2015-01-01 00:00:00`
 
-Each civil time type performs arithmetic on the field to which it is aligned.
+Each civil-time type performs arithmetic on the field to which it is aligned.
 This means that adding 1 to a `civil_day` increments the day field (normalizing
 as necessary), and subtracting 7 from a `civil_month` operates on the month
 field (normalizing as necessary). All arithmetic produces a new value that
@@ -218,17 +218,17 @@ time types and returns the scaler answer in units of the given alignment. For
 example, the difference between two `civil_hour` objects will give an answer in
 hours.
 
-Finally, in addition to the six civil time types just described, there are a
+Finally, in addition to the six civil-time types just described, there are a
 handful of helper functions and algorithms for performing common calculations.
 These will be described in the Synopsis below.
 
 ## Synopsis
 
-The following code illustrates the public API for each of the six civil time
+The following code illustrates the public API for each of the six civil-time
 types described above. As an implementation choice, Google chose to write one
 class template that is parameterized on the alignment field as a tag struct.
 This class template is not a public API point, but it serves here to illustrate
-the API of each of the public civil time types.
+the API of each of the public civil-time types.
 
 ```cpp
 namespace detail {
@@ -295,7 +295,7 @@ struct minute_tag {};
 struct second_tag {};
 }  // namespace detail
 
-// The six public civil time types.
+// The six public civil-time types.
 using civil_year = detail::civil_time<detail::year_tag>;
 using civil_month = detail::civil_time<detail::month_tag>;
 using civil_day = detail::civil_time<detail::day_tag>;
@@ -304,7 +304,7 @@ using civil_minute = detail::civil_time<detail::minute_tag>;
 using civil_second = detail::civil_time<detail::second_tag>;
 ```
 
-In addition to the six civil time types defined above, the following helper
+In addition to the six civil-time types defined above, the following helper
 functions are also defined to help with common computations.
 
 ```cpp
@@ -332,10 +332,10 @@ constexpr int get_yearday(const civil_day&);
 
 ## Examples
 
-The following examples show usage of the proposed Civil Time Library, as well as
+The following examples show usage of the proposed Civil-Time Library, as well as
 illustrate interesting semantics of various API points.
 
-As a shorthand in the examples below, the YMDHMS fields of a civil time type may
+As a shorthand in the examples below, the YMDHMS fields of a civil-time type may
 be shown as a string of the form `YYYY-MM-DD hh:mm:ss`. Fields omitted from the
 string format still exist and are assumed to have their minimum value. For
 example:
@@ -354,9 +354,9 @@ civil_day d(2015, 2, 3);
 
 ### Construction
 
-Civil time types can be constructed in two ways: by directly passing 0-6
+civil-time types can be constructed in two ways: by directly passing 0-6
 integers representing the YMDHMS fields to the constructor, or by copying the
-fields from a differently aligned civil time type.
+fields from a differently aligned civil-time type.
 
 ```cpp
 civil_day default_value;           // 1970-01-01 00:00:00
@@ -382,11 +382,11 @@ ss = civil_second(mm);                 // 2015-01-01 00:00:00
 ### Comparison
 
 Comparison always considers all six YMDHMS fields, regardless of the type's
-alignment. Comparison between differently aligned civil time types is allowed.
+alignment. Comparison between differently aligned civil-time types is allowed.
 
 Note: Comparison between differently aligned types is not a critical part of
 this API. It exists as a convenience, but it could be removed at the cost of
-requiring explicit casts between civil time types when comparing.
+requiring explicit casts between civil-time types when comparing.
 
 ```cpp
 civil_day feb_3(2015, 2, 3);  // 2015-02-03 00:00:00
@@ -406,7 +406,7 @@ for (civil_day d(2015, 2, 1); d < civil_month(2015, 3); ++d) {
 
 ### Arithmetic
 
-Civil time types support natural arithmetic operators such as addition,
+Civil-time types support natural arithmetic operators such as addition,
 subtraction, and difference. Arithmetic operates on the civil field indicated
 in the type's name. Difference requires arguments with the same alignment and
 returns the answer in units of the alignment.
@@ -423,7 +423,7 @@ int m = c - civil_month(c);  // Won't compile: different types.
 
 ### Weekdays
 
-The Civil Time Library provides the `prev_weekday()` and `next_weekday()`
+The Civil-Time Library provides the `prev_weekday()` and `next_weekday()`
 functions for navigating a calendar by the day of the week. Both functions
 accept a `civil_day` argument as well as the desired `weekday`. They both
 return a strictly different `civil_day` that falls on the given `weekday`, even
@@ -453,7 +453,7 @@ civil_day floor_thursday = next_weekday(d, weekday::thursday) - 7;
 ### Adding a month to Jan 31
 
 See the Design Decisions section above for an explanation of why this is an
-ambiguous question. As described above, this Civil Time Library makes it
+ambiguous question. As described above, this Civil-Time Library makes it
 impossible to directly ask this ambiguous question because of alignment
 requirements. However, if a programmer really wants to ask this question, they
 need to be more explicit about what the answer will be. For example:

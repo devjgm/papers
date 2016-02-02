@@ -68,10 +68,10 @@ types exist to represent absolute times, classically `time_t` and more recently
 
 *Civil time* is the legally recognized representation of time for ordinary
 affairs (cf. http://www.merriam-webster.com/dictionary/civil). It is a
-human-scale representation of time that consists of the six fields &mdash;
-year, month, day, hour, minute, and second (sometimes shortened to "YMDHMS")
-&mdash; and it follows the rules of the [Proleptic Gregorian Calendar], with
-24-hour days divided into hours, minutes, and seconds. Like absolute times,
+human-scale representation of time that consists of the six fields &mdash; year,
+month, day, hour, minute, and second (sometimes shortened to "YMDHMS") &mdash;
+and it follows the rules of the [Proleptic Gregorian Calendar], with 24-hour
+days divided into 60-minute hours and 60-second minutes. Like absolute times,
 civil times are also independent of all time zones and their related
 complexities (e.g., DST). While `std::tm` contains the six YMDHMS civil-time
 fields (plus a few more), it does not have behavior to enforce the rules of
@@ -83,10 +83,10 @@ domains. A time-zone's rules include things like the region's offset from the
 [UTC] time standard, daylight-saving adjustments, and short abbreviation
 strings. Time zones often have a history of disparate rules that apply only for
 certain periods because the rules may change at the whim of a region's local
-government. For this reason, time zone rules are often compiled into data
+government. For this reason, time zone rules are usually compiled into data
 snapshots that are used at runtime to perform conversions between absolute and
-civil times. There is currently no standard library supporting arbitrary time
-zones.
+civil times. There is currently no C++ standard library supporting arbitrary
+time zones.
 
 The C++ standard library already has `<chrono>`, which is a good implementation
 of an *Absolute Time* Library. Another paper is proposing a standard *Civil
