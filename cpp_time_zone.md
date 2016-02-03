@@ -4,8 +4,8 @@ Metadata        | Value
 :---------------|:------
 Document number | Nnnnn=yy-nnnn
 Date            | yyyy-mm-dd
-Project         | Programming Language C++, Library Working Group
 Reply-to        | Greg Miller (jgm at google dot com), Bradley White (bww at google dot com)
+Audience        | Programming Language C++, Library Working Group
 
 ## Introduction
 
