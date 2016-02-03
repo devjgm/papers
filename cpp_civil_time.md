@@ -9,11 +9,11 @@ Reply-to        | Greg Miller (jgm at google dot com), Bradley White (bww at goo
 
 ## Introduction
 
-This document proposes a standard C++ library for computing with time that is
-represented by years, months, and days that follow the rules of the [Proleptic
-Gregorian Calendar], as well as 24-hour days that are divided into hours,
-minutes, and seconds. These six fields are how humans commonly experience time.
-This time-zone-independent representation is called *civil time*.
+This document proposes a standard C++ library for time computations based on
+the rules of the [Proleptic Gregorian Calendar]. That is, time values
+represented by years, months, and days, as well as 24-hour days that are divided
+into hours, minutes, and seconds. These six fields are how humans commonly experience
+time, and this time-zone-independent representation is called *civil time*.
 
 ## Motivation and Scope
 
@@ -24,28 +24,26 @@ surface in code because programmers do not have a simple conceptual model with
 which to reason about the time-programming challenges they are facing.
 Furthermore, this lack of a simple conceptual model begets the lack of a simple
 library, leaving only complicated libraries that programmers struggle to
-understand and use correctly (or none at all).
+understand and use correctly (or no libraries at all).
 
 A survey of application-level code within Google that computes with civil-time
 fields shows that programmer confusion is a fundamental cause of overly
-complicated and buggy code. This is a result of the previously mentioned
-complexities that are inherent in this problem space, and the fact that there
-has been little progress toward hiding these complexities behind a library that
-exposes a simpler conceptual model to programmers.
+complicated and buggy code. This is a result of the inherent complexities in this
+problem space just mentioned, and the fact that there has been little progress
+toward hiding these complexities behind a library that presents a simpler conceptual
+model to programmers.
 
-The Civil-Time Library proposed here addresses the above problems by presenting
+The Civil-Time Library proposed here addresses these problems by presenting
 civil time as a *regular*, time-zone-independent concept that allows programmers
-to ignore the above complexities when it is safe to do so. This library has been
+to ignore the complexities when it is safe to do so. This library has been
 implemented and widely used within Google for the past few years. It is actively
-used in real-world code by programmers from novice to expert.
+being used in real-world code by novice and expert programmers alike.
 
 ## The Conceptual Model and Terminology
 
-Civil time, as described in this proposal, is one of the three concepts that
-together form a complete conceptual model for reasoning about even the most
-complex time-programming challenges. This conceptual model is easy to understand
-and is even programming language neutral. This model is made up of the following
-three concepts: *absolute time*, *civil time*, and *time zone*.
+Civil time, as described in this proposal, is just one of the three concepts that
+comprise a complete, straightforward, and language-neutral conceptual model for
+reasoning about time programming: *absolute time*, *civil time*, and *time zone*.
 
 *Absolute time* uniquely and universally represents a specific instant in time.
 It has no notion of calendars, or dates, or times of day. Instead, it is a
@@ -62,40 +60,40 @@ month, day, hour, minute, and second (sometimes shortened to "YMDHMS") &mdash;
 and it follows the rules of the [Proleptic Gregorian Calendar], with 24-hour
 days divided into 60-minute hours and 60-second minutes. Like absolute times,
 civil times are also independent of all time zones and their related
-complexities (e.g., DST). While `std::tm` contains the six YMDHMS civil-time
-fields (plus a few more), it does not have behavior to enforce the rules of
-civil time as just described.
+complexities (e.g., DST). While `std::tm` contains the six civil-time
+fields (YMDHMS), plus a few more, it does not have behavior to enforce the rules
+of civil time.
 
 *Time zones* are geo-political regions within which human-defined rules are
-shared to convert between the previously described absolute-time and civil-time
-domains. A time-zone's rules include things like the region's offset from the
+shared to convert between absolute-time and civil-time domains. A time zone's
+rules include things like the region's offset from the
 [UTC] time standard, daylight-saving adjustments, and short abbreviation
 strings. Time zones often have a history of disparate rules that apply only for
 certain periods, because the rules may change at the whim of a region's local
-government. For this reason, time-zone rules are usually compiled into data
+government. For this reason, time zone rules are usually compiled into data
 snapshots that are used at runtime to perform conversions between absolute and
 civil times. There is currently no C++ standard library supporting arbitrary
 time zones.
 
 The C++ standard already has the `<chrono>` library, which is a good
-implementation of an *Absolute-Time* Library. This paper proposes a standard
-*Civil-Time* Library. A separate paper (XXX: jgm insert the paper number)
+implementation of an *absolute-time* library. This paper proposes a standard
+*civil-time* library. A separate paper (XXX: jgm insert the paper number)
 proposes a standard *Time Zone* Library that bridges `<chrono>` and this
 Civil-Time Library, and will complete the three pillars of the conceptual model
 just described.
 
 ## Impact on the Standard
 
-The Civil-Time Library proposed here is not directly dependent on any other
+The Civil-Time Library proposed here does not directly depend on any other
 standard C++ library. It is implementable using C++98, with optimizations such
 as `constexpr` available when compiled as C++11.
 
-A current sister proposal that describes a standard Time Zone Library (XXX: jgm
+The current sister proposal for a standard Time Zone Library (XXX: jgm
 add a doc reference) depends on the existence of this Civil-Time Library.
 
 ## Design Decisions
 
-### The Proleptic Gregorian Calendar is used
+### Only the Proleptic Gregorian Calendar is used
 
 Many different calendaring systems exist in the world, but the most commonly
 used calendar is the [Proleptic Gregorian Calendar]. Supporting rarely used
@@ -106,47 +104,48 @@ we've chosen not to support other calendars.
 ### Leap seconds are disregarded
 
 Unlike leap days, which are part of the [Proleptic Gregorian Calendar], leap
-seconds are unpredictable and would require time-zone knowledge to properly
-support in the civil-time domain. Time zone awareness in the civil-time domain
-would add non-trivial conceptual complexity for a rare use case. The simplicity
+seconds are unpredictable and would require time zone knowledge to properly
+support their use in the civil-time domain. Such time zone awareness
+would add substantial conceptual complexity for a rare use case. The simplicity
 of this Civil-Time Library stems from presenting a regularized human-scale time
 representation that is devoid of complexities and discontinuities, such as those
-caused by DST and leap seconds. We believe it would be a mistake to expose leap
-second complexities in the civil-time domain. If knowledge of leap seconds were
-necessary, that support should exist in a separate time-zone library rather than
-a civil-time library.
+caused by supporting DST and leap seconds. We believe it would be a mistake to
+expose leap second complexities in the civil-time domain. And if knowledge of leap
+seconds were necessary, that support should exist in a separate time zone library
+rather than a civil-time library.
 
 ### Civil times are always valid
 
 It is not possible to create an invalid civil-time instance. Similarly, there
 are no errors when constructing a civil time with field values that are out of
 range. This is enforced by normalizing input fields (similar to `mktime(3)`).
-For example, Jan 32 will normalize to Feb 1. This decision reduces the amount of
-boilerplate error checking, and it allows callers to do arithmetic on input field
-arguments without worrying about range. If normalization is undesired, callers
-may compare the resulting normalized fields to the input fields to signal an error.
+For example, January 32 will normalize to February 1. This decision reduces the
+amount of boilerplate error checking, and it allows callers to do arithmetic on
+input field arguments without worrying about range. If normalization is undesired,
+callers may compare the resulting normalized fields to the input fields to signal
+an error.
 
 ### Civil times do not have subseconds
 
 Civil times are represented by the six fields of year, month, day, hour, minute,
 and second. These are the six fields that are typically considered for
 human-scale time. Additionally, seconds are the level of precision within time
-zone data files; i.e., there are no subsecond time-zone transitions. It would be
-possible to add subseconds to this Civil-Time Library, but it would add some
-complexity for which we have found no demand.
+zone data files; i.e., there are no subsecond time zone transitions. While it would
+be possible to support subseconds in this Civil-Time Library, doing so
+would complicate the library for a feature with no real demand.
 
 ### Civil times are aligned to a civil-field boundary
 
 One of the classic questions that arises when talking about a civil-time library
-(aka a date library or a date/time library) is this: "What happens when you add
+(or a date library or a date/time library) is this: "What happens when you add
 a month to Jan 31?" This is an interesting question because there could be a
 number of possible answers:
 
-* Maybe March 3 (or 2 if a leap year). This may make sense because the operation
-  goes to the equivalent of Feb 31.
-* Maybe Feb 28 (or 29 if a leap year). This may make sense because the operation
-  goes from the last day of January to the last day of February.
-* Maybe Error. The caller gets some error, maybe an exception, maybe an invalid
+* March 3 (or 2 if a leap year). This may make sense if the operation
+  calculates a date that is the equivalent of February 31.
+* February 28 (or 29 if a leap year). This may make sense if the operation
+  calculates a date from the last day of January to the last day of February.
+* Error. The caller may get some error, an exception, an invalid
   date object, or maybe `false` is returned. This may make sense because there
   is no single unambiguously correct answer to the question.
 
@@ -159,14 +158,15 @@ particular civil-field boundary (such as aligned to a year, month, day, hour,
 minute, or second), and arithmetic operates on the field to which the object is
 aligned. This means that in order to "add a month" the object must first be
 aligned to a month boundary, which is equivalent to the first day of that month.
-See the Technical Specification section below for more about alignment.
+See the [*Technical Specification*](#technical-specification) section below for
+more about alignment.
 
-There are indeed ways to accomplish the task of adding a month to Jan 31 with
+There are indeed ways to accomplish the task of adding a month to January 31 with
 this Civil-Time Library, but they require the programmer to be more explicit
 about their intent so the answer is unsurprising. There is an example showing
 this later in this paper. In practice, we have found few places in Google code
-where programmers wanted unaligned arithmetic, but in those few cases the
-explicit code helped ensure the programmer's intent matched the answer they got.
+where programmers wanted unaligned date arithmetic, and in those few cases the
+more explicit code helped ensure that the programmer got the answer they expected.
 
 ## Technical Specification
 
@@ -185,7 +185,7 @@ the same six accessors for each of the YMDHMS fields. These classes differ only
 in their *alignment*, which is indicated by the type name and specifies the
 field on which arithmetic operates.
 
-Each class can be constructed by passing from 0-6 optional integer arguments
+Each class can be constructed by passing up to six optional integer arguments
 representing the YMDHMS fields (in that order) to the constructor. Omitted
 fields are assigned their minimum valid value. Hours, minutes, and seconds will
 be set to 0, month and day will be set to 1, and year will be set to 1970. So, a
@@ -194,7 +194,7 @@ default-constructed civil-time object will have YMDHMS fields representing
 
 Each civil-time class is aligned to the civil-time field indicated in the
 class's name. Alignment is performed by setting all the inferior fields to their
-minimum valid value (see above for the minimum valid values). The following are
+minimum valid value (as described above). The following are
 examples of how each of the six types would align the fields representing
 November 22, 2015 at 12:34:56 in the afternoon. (Note: the string format used
 here is not important; it's just a shorthand way of showing the six YMDHMS
@@ -220,12 +220,12 @@ hours.
 
 Finally, in addition to the six civil-time types just described, there are a
 handful of helper functions and algorithms for performing common calculations.
-These will be described in the Synopsis below.
+These are described in the [*Synopsis*](#synopsis) below.
 
 ## Synopsis
 
 The following code illustrates the public API for each of the six civil-time
-types described above. As an implementation choice, Google chose to write one
+types. As an implementation choice, Google chose to write one
 class template that is parameterized on the alignment field as a tag struct.
 This class template is not a public API point, but it serves here to illustrate
 the API of each of the public civil-time types.
@@ -305,7 +305,7 @@ using civil_second = detail::civil_time<detail::second_tag>;
 ```
 
 In addition to the six civil-time types defined above, the following helper
-functions are also defined to help with common computations.
+functions provide help with common computations.
 
 ```cpp
 enum class weekday {
@@ -354,8 +354,8 @@ civil_day d(2015, 2, 3);
 
 ### Construction
 
-civil-time types can be constructed in two ways: by directly passing 0-6
-integers representing the YMDHMS fields to the constructor, or by copying the
+Each of the civil-time types can be constructed in two ways: by directly passing up to six
+(optional) integers representing the YMDHMS fields to the constructor, or by copying the
 fields from a differently aligned civil-time type.
 
 ```cpp
@@ -384,7 +384,7 @@ ss = civil_second(mm);                 // 2015-01-01 00:00:00
 Comparison always considers all six YMDHMS fields, regardless of the type's
 alignment. Comparison between differently aligned civil-time types is allowed.
 
-Note: Comparison between differently aligned types is not a critical part of
+Note that comparison between differently aligned types is not a critical part of
 this API. It exists as a convenience, but it could be removed at the cost of
 requiring explicit casts between civil-time types when comparing.
 
@@ -407,7 +407,7 @@ for (civil_day d(2015, 2, 1); d < civil_month(2015, 3); ++d) {
 ### Arithmetic
 
 Civil-time types support natural arithmetic operators such as addition,
-subtraction, and difference. Arithmetic operates on the civil field indicated
+subtraction, and difference. Arithmetic operates on the civil-time field indicated
 in the type's name. Difference requires arguments with the same alignment and
 returns the answer in units of the alignment.
 
@@ -450,13 +450,13 @@ civil_day ceil_thursday = prev_weekday(d, weekday::thursday) + 7;
 civil_day floor_thursday = next_weekday(d, weekday::thursday) - 7;
 ```
 
-### Adding a month to Jan 31
+### Adding a month to January 31
 
-See the Design Decisions section above for an explanation of why this is an
-ambiguous question. As described above, aligned arithmetic makes it impossible
-to ask this ambiguous question. However, if a programmer really wants to ask
-this question, they need to be more explicit about what the answer will be. For
-example:
+[*Design Decisions*](#design-decisions) explained why adding a month
+to January 31 presents an ambiguous question. As we've described, aligned date
+arithmetic makes it impossible to ask this ambiguous question. However, if a
+programmer really wants to ask this question, they need to be more explicit about
+the answer they expect. For example:
 
 ```cpp
 const civil_day d(2015, 1, 31);
