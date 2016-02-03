@@ -9,16 +9,16 @@ Reply-to        | Greg Miller (jgm at google dot com), Bradley White (bww at goo
 
 ## Introduction
 
-Note: This proposal depends on the Civil Time Library that is proposed in (XXX: jgm
-add a link to the Civil Time Library proposal).
+Note: This proposal depends on the Civil-Time Library that is proposed in (XXX: jgm
+add a link to the Civil-Time Library proposal).
 
-This document proposes a standard C+ library for computing with real-world time
+This document proposes a standard C++ library for computing with real-world time
 zones, such as "America/New_York", "Europe/London", and "Australia/Sydney". The
 data describing the rules of each time zone are distributed separately (e.g.,
 https://www.iana.org/time-zones), and are not a part of this proposal. The core
 of this paper proposes a single user-facing class that can represent any
-real-world time zone and is able to convert between the *absolute time* and the
-*civil time* domains. All the complex time-zone computations will be handled by
+real-world time zone and is able to convert between the *absolute-time* and the
+*civil-time* domains. All the complex time-zone computations will be handled by
 this Time-Zone Library. The exposed interface will give callers access to all
 the time-zone information they need, while encouraging proper time-programming
 practices.
@@ -78,7 +78,7 @@ fields (plus a few more), it does not have behavior to enforce the rules of
 civil time as just described.
 
 *Time zones* are geo-political regions within which human-defined rules are
-shared to convert between the previously described absolute time and civil time
+shared to convert between the previously described absolute-time and civil-time
 domains. A time-zone's rules include things like the region's offset from the
 [UTC] time standard, daylight-saving adjustments, and short abbreviation
 strings. Time zones often have a history of disparate rules that apply only for
@@ -90,15 +90,15 @@ time zones.
 
 The C++ standard library already has `<chrono>`, which is a good implementation
 of an *Absolute Time* Library. Another paper is proposing a standard *Civil
-Time* Library that complements `<chrono>` (XXX: jgm insert link to civil time
-paper). The current paper is proposing a standard *Time Zone* library that
-bridges `<chrono>` and the proposed Civil Time Library, and completes the three
-pillars of the conceptual model just described.
+Time* Library (XXX: jgm insert link to civil time paper). The current paper is
+proposing a standard *Time Zone* library that bridges `<chrono>` and the
+proposed Civil-Time Library, and completes the three pillars of the conceptual
+model just described.
 
 # Impact on the Standard
 
 The Time-Zone Library proposed in this paper depends on the existing `<chrono>`
-library with no changes. It also depends on the proposed Civil Time Library that
+library with no changes. It also depends on the proposed Civil-Time Library that
 is proposed in (XXX: jgm add a link). This library is implementable using only
 C++98 and requires no language extensions.
 
@@ -146,7 +146,7 @@ The core of the Time-Zone Library presented here is a single class named
 `time_zone`, which has two member functions to convert between absolute time and
 civil time. Absolute times are represented by `std::chrono::time_point` (on the
 system_clock), and civil times are represented using `civil_second` as described
-in the proposed Civil Time Library (XXX: jgm add link to that paper). The Time
+in the proposed Civil-Time Library (XXX: jgm add link to that paper). The Time
 Zone Library also defines a convenience syntax for doing common conversions
 through a time zone. There are also functions to format and parse absolute times
 as strings.
@@ -225,7 +225,7 @@ allow "piping" either time type to a `time_zone` in order to convert to the
 other type.
 
 The implementation of these convenience functions must select an appropriate
-"default" time point to return in cases of ambiguous/skipped civil time
+"default" time point to return in cases of ambiguous/skipped civil-time
 conversions. The value chosen is such that the relative ordering of civil times
 is preserved when they are converted to absolute times.
 
@@ -296,7 +296,7 @@ const time_zone local = local_time_zone();
 
 ### Creating a `time_point` from a `civil_second`
 
-Converting from the civil time domain to the absolute time domain is one of the
+Converting from the civil-time domain to the absolute-time domain is one of the
 two fundamental operations of a time zone.
 
 ```cpp
@@ -314,7 +314,7 @@ if (load_time_zone("America/New_York", &nyc)) {
 
 ### Creating a `civil_second` from a `time_point`
 
-Converting from the absolute time domain to the civil time domain is one of the
+Converting from the absolute-time domain to the civil-time domain is one of the
 two fundamental operations of a time zone.
 
 ```cpp
@@ -334,12 +334,12 @@ if (load_time_zone("America/New_York", &nyc)) {
 ### Handling daylight-saving time
 
 Converting from an absolute time to a civil time is never affected by DST
-complexities. On the other hand, conversions going the other direction could be
-specified as either skipped or repeated civil times, possibly requiring the
+complexities. On the other hand, conversions going in the other direction could
+be specified as either skipped or repeated civil times, possibly requiring the
 caller to make a choice about which is the desired answer. In most cases the
 programmer will not have to make this decision as the shorthand syntax
 (`operator|`) shown thus far will choose a good default. However, if the chosen
-default is not desired, the programmer is free to choose their own.
+default is not desired, the programmer is free to select their own.
 
 This example considers 2015-03-08 02:30:00, which did not exist in New York,
 USA.
@@ -393,16 +393,12 @@ borrowed from Howard Hinnant.
 
 ```cpp
 time_zone nyc;
-if (!load_time_zone("America/New_York", &nyc)) {
-  // error.
-}
+if (!load_time_zone("America/New_York", &nyc)) { /* error */ }
 const auto departure = civil_second(1978, 12, 30, 12, 1, 0) | nyc;
 const auto flight_length = std::chrono::hours(14) + std::chrono::minutes(44);
 const auto arrival = departure + flight_length;
 time_zone teh;
-if (!load_time_zone("Asia/Tehran", &teh)) {
-  // error.
-}
+if (!load_time_zone("Asia/Tehran", &teh)) { /* error */ }
 // format(departure, nyc) == 1978-12-30T12:01:00-05:00
 // format(arrival, teh)   == 1978-12-31T11:45:00+04:00
 ```

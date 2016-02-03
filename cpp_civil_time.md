@@ -79,10 +79,10 @@ time zones.
 
 The C++ standard already has the `<chrono>` library, which is a good
 implementation of an *Absolute-Time* Library. This paper proposes a standard
-*Civil-Time* Library that complements `<chrono>`. A separate paper (XXX: jgm
-insert the paper number) proposes a standard *Time Zone* Library that bridges
-`<chrono>` and this Civil-Time Library, and will complete the three pillars of
-the conceptual model just described.
+*Civil-Time* Library. A separate paper (XXX: jgm insert the paper number)
+proposes a standard *Time Zone* Library that bridges `<chrono>` and this
+Civil-Time Library, and will complete the three pillars of the conceptual model
+just described.
 
 ## Impact on the Standard
 
