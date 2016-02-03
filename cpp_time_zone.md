@@ -276,9 +276,8 @@ bool parse(const std::string& format, const std::string& input,
 ### Creating a `time_zone`
 
 Time zones are created by passing the time zone's name to the `load_time_zone()`
-function along with a pointer to a `time_zone`. Since the named zone may not
-exist or may be specified incorrectly by the caller, the function will return
-`false` on error.
+function along with a pointer to a `time_zone`. The function will return `false`
+if the named zone fails to load.
 
 Additionally, callers may get time zones representing UTC or the process's local
 time zone through convenience functions that cannot fail and return the time

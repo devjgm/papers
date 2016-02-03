@@ -120,8 +120,8 @@ a civil-time library.
 
 It is not possible to create an invalid civil-time instance. Similarly, there
 are no errors when constructing a civil time with field values that are out of
-range. This is enforced by normalizing input fields (similar to `mktime(3)`),
-for example, Jan 32 will normalize to Feb 1. This decision reduces the amount of
+range. This is enforced by normalizing input fields (similar to `mktime(3)`).
+For example, Jan 32 will normalize to Feb 1. This decision reduces the amount of
 boilerplate error checking, and it allows callers to do arithmetic on input field
 arguments without worrying about range. If normalization is undesired, callers
 may compare the resulting normalized fields to the input fields to signal an error.
