@@ -3,8 +3,8 @@
 Metadata        | Value
 :---------------|:------
 Document number | D0205
-Date            | 2016-02-03
-Reply-to        | Greg Miller (jgm at google dot com), Bradley White (bww at google dot com)
+Date            | 2016-02-04
+Reply-to        | Greg Miller (jgm@google.com), Bradley White (bww@google.com)
 Audience        | Programming Language C++, Library Working Group
 Source          | https://github.com/devjgm/papers/blob/master/cpp_civil_time.md
 
@@ -90,10 +90,9 @@ currently no C++ standard library supporting arbitrary time zones.
 
 The C++ standard already has the `<chrono>` library, which is a good
 implementation of an *absolute-time* library. This paper proposes a standard
-*civil-time* library. A separate paper (XXX: jgm insert the paper number)
-proposes a standard *Time-Zone* Library that bridges `<chrono>` and this
-Civil-Time Library, and will complete the three pillars of the conceptual model
-just described.
+*civil-time* library. A separate paper ([D0206]) proposes a standard *Time-Zone*
+Library that bridges `<chrono>` and this Civil-Time Library, and will complete
+the three pillars of the conceptual model just described.
 
 ## Impact on the Standard
 
@@ -101,8 +100,8 @@ The Civil-Time Library proposed here does not directly depend on any other
 standard C++ library. It is implementable using C++98, with optimizations such
 as `constexpr` available when compiled as C++11.
 
-The current sister proposal for a standard Time-Zone Library (XXX: jgm add a doc
-reference) depends on the existence of this Civil-Time Library.
+The current sister proposal for a standard Time-Zone Library ([D0206]) depends
+on the existence of this Civil-Time Library.
 
 ## Design Decisions
 
@@ -501,3 +500,4 @@ if (civil_month(ans_normalized) - civil_month(d) != 1) {
 
 [Proleptic Gregorian Calendar]: https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
 [UTC]: https://en.wikipedia.org/wiki/Coordinated_Universal_Time
+[D0206]: https://github.com/devjgm/papers/blob/master/cpp_time_zone.md

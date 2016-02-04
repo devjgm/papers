@@ -3,8 +3,8 @@
 Metadata        | Value
 :---------------|:------
 Document number | D0206
-Date            | 2016-02-03
-Reply-to        | Greg Miller (jgm at google dot com), Bradley White (bww at google dot com)
+Date            | 2016-02-04
+Reply-to        | Greg Miller (jgm@google.com), Bradley White (bww@google.com)
 Audience        | Programming Language C++, Library Working Group
 Source          | https://github.com/devjgm/papers/blob/master/cpp_time_zone.md
 
@@ -22,8 +22,8 @@ Source          | https://github.com/devjgm/papers/blob/master/cpp_time_zone.md
 
 ## Introduction
 
-Note: This proposal depends on the Civil-Time Library that is proposed in (XXX: jgm
-add a link to the Civil-Time Library proposal).
+Note: This proposal depends on the Civil-Time Library that is proposed in
+[D0205].
 
 This document proposes a standard C++ library for computing with real-world time
 zones, such as "America/New_York", "Europe/London", and "Australia/Sydney". The
@@ -102,17 +102,16 @@ currently no C++ standard library supporting arbitrary time zones.
 
 The C++ standard library already has the `<chrono>` library, which is a good
 implementation of an *absolute time* library. Another paper is proposing a
-standard *Civil-Time Library* (XXX: jgm insert link to civil time paper). The
-current paper is proposing a standard *Time-Zone Library* that bridges
-`<chrono>` and the proposed Civil-Time Library, and completes the three pillars
-of the conceptual model just described.
+standard *Civil-Time Library* ([D0205]). The current paper is proposing a
+standard *Time-Zone Library* that bridges `<chrono>` and the proposed Civil-Time
+Library, and completes the three pillars of the conceptual model just described.
 
 # Impact on the Standard
 
 The Time-Zone Library proposed here depends on the existing `<chrono>` library
-with no changes. It also depends on the Civil-Time Library proposed in (XXX: jgm
-add a link). This library is implementable using only C++98, and requires no
-language extensions.
+with no changes. It also depends on the Civil-Time Library proposed in [D0205].
+This library is implementable using only C++98, and requires no language
+extensions.
 
 ## Design Decisions
 
@@ -158,10 +157,9 @@ The core of the Time-Zone Library presented here is a single class named
 `time_zone`, which has two member functions to convert between absolute time and
 civil time. Absolute times are represented by `std::chrono::time_point` (on the
 `system_clock`), and civil times are represented using `civil_second` as
-described in the proposed Civil-Time Library (XXX: jgm add link to that paper).
-The Time-Zone Library also defines a convenience syntax for doing common
-conversions through a time zone. There are also functions to format and parse
-absolute times as strings.
+described in the proposed Civil-Time Library ([D0205]). The Time-Zone Library
+also defines a convenience syntax for doing common conversions through a time
+zone. There are also functions to format and parse absolute times as strings.
 
 ## Synopsis
 
@@ -169,7 +167,7 @@ The interface for the core `time_zone` class is as follows.
 
 ```cpp
 #include <chrono>
-#include "civil.h"  // XXX: jgm reference the other paper
+#include "civil.h"  // See proposal [D0205]
 
 // Convenience aliases. Not intended as public API points.
 template <typename D>
@@ -424,3 +422,4 @@ if (!load_time_zone("Asia/Tehran", &teh)) { /* error */ }
 
 [Proleptic Gregorian Calendar]: https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
 [UTC]: https://en.wikipedia.org/wiki/Coordinated_Universal_Time
+[D0205]: https://github.com/devjgm/papers/blob/master/cpp_civil_time.md
