@@ -8,6 +8,18 @@ Reply-to        | Greg Miller (jgm at google dot com), Bradley White (bww at goo
 Audience        | Programming Language C++, Library Working Group
 Source          | https://github.com/devjgm/papers/blob/master/cpp_civil_time.md
 
+## Table of Contents
+
+* [Introduction](#introduction)
+* [Motivation and Scope](#motivation-and-scope)
+* [The Conceptual Model and Terminology](#the-conceptual-model-and-terminology)
+* [Impact on the Standard](#impact-on-the-standard)
+* [Design Decisions](#design-decisions)
+* [Technical Specification](#technical-specification)
+* [Synopsis](#synopsis)
+* [Examples](#examples)
+* [References](#references)
+
 ## Introduction
 
 This document proposes a standard C++ library for computing with time that is
