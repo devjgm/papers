@@ -6,6 +6,7 @@ Document number | D0205
 Date            | 2016-02-03
 Reply-to        | Greg Miller (jgm at google dot com), Bradley White (bww at google dot com)
 Audience        | Programming Language C++, Library Working Group
+Source          | https://github.com/devjgm/papers/blob/master/cpp_civil_time.md
 
 ## Introduction
 
