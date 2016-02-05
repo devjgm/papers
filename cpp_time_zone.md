@@ -154,12 +154,11 @@ time zone enables programmers to write correct, time-zone-agnostic code without
 needing to special-case UTC.
 
 The core of the Time-Zone Library presented here is a single class named
-`time_zone`, which has two member functions to convert between absolute time and
-civil time. Absolute times are represented by `std::chrono::time_point` (on the
+`time_zone`, which enables converting between absolute time and civil time.
+Absolute times are represented by `std::chrono::time_point` (on the
 `system_clock`), and civil times are represented using `civil_second` as
 described in the proposed Civil-Time Library ([D0205]). The Time-Zone Library
-also defines a convenience syntax for doing common conversions through a time
-zone. There are also functions to format and parse absolute times as strings.
+also defines functions to format and parse absolute times as strings.
 
 ## Synopsis
 
@@ -181,17 +180,17 @@ class time_zone {
   time_zone(const time_zone&) = default;
   time_zone& operator=(const time_zone&) = default;
 
-  struct time_conversion {
+  struct absolute_lookup {
     civil_second cs;
     int offset;        // seconds east of UTC
     bool is_dst;       // is offset non-standard?
     std::string abbr;  // time-zone abbreviation (e.g., "PST")
   };
   template <typename D>
-  time_conversion convert(const time_point<D>& tp) const;
+  absolute_lookup lookup(const time_point<D>& tp) const;
 
-  struct civil_conversion {
-    enum class kind {
+  struct civil_lookup {
+    enum civil_kind {
       UNIQUE,    // the civil time was singular (pre == trans == post)
       SKIPPED,   // the civil time did not exist
       REPEATED,  // the civil time was ambiguous
@@ -200,7 +199,7 @@ class time_zone {
     time_point<sys_seconds> trans;
     time_point<sys_seconds> post;  // Uses the post-transition offset
   };
-  civil_conversion convert(const civil_second& cs) const;
+  civil_lookup lookup(const civil_second& cs) const;
 
  private:
   ...
@@ -224,36 +223,35 @@ time may not be exact. Conversions around UTC offset transitions may be given
 ambiguous civil times (e.g., the 1:00 am hour is repeated during the Autumn DST
 transition in the United States), and some civil times may not exist in a
 particular time zone (e.g., the 2:00 am hour is skipped during the Spring DST
-transition in the United States). The `time_zone::civil_conversion` struct gives
+transition in the United States). The `time_zone::civil_lookup` struct gives
 callers all relevant information about the conversion operation.
 
-The full information provided by the `time_zone::time_conversion` and
-`time_zone::civil_conversion` structs is frequently not needed by callers. To
+The full information provided by the `time_zone::absolute_lookup` and
+`time_zone::civil_lookup` structs is frequently not needed by callers. To
 simplify the common case of converting between `std::chrono::time_point` and
-`civil_second`, the Time-Zone Library provides two overloads of `operator|` to
-allow "piping" either time type to a `time_zone` in order to convert to the
-other type.
+`civil_second`, the Time-Zone Library provides an overloaded non-member
+`convert()` function that directly converts from one type to the other. These
+overloads are the main interface points that callers should use when converting
+between the absolute-time and civil-time domains, because they intelligently
+select a good default when time-zone uncertainties arise.
 
-The implementation of these convenience functions must select an appropriate
-"default" time point to return in cases of ambiguous/skipped civil-time
-conversions. The value chosen is such that the relative ordering of civil times
-is preserved when they are converted to absolute times.
-
-Note: This convenience syntax exists to shorten common code samples, and to
-select a generally good default for programmers when necessary. It is not an
-essential part of the Time-Zone Library proposed in this paper.
+The implementation of these `convert()` functions must select an appropriate
+time point to return in cases of ambiguous/skipped civil-time conversions. The
+value chosen is such that the relative ordering of civil times is preserved when
+they are converted to absolute times. That is, given `civil_second a, b;`, if `a
+< b`, then `convert(a, tz) <= convert(b, tz)`.
 
 ```cpp
 template <typename D>
-inline civil_second operator|(const time_point<D>& tp, const time_zone& tz) {
-  return tz.convert(tp).cs;
+inline civil_second convert(const time_point<D>& tp, const time_zone& tz) {
+  return tz.lookup(tp).cs;
 }
 
-inline time_point<sys_seconds> operator|(const civil_second& cs, const time_zone& tz) {
-  const auto conv = tz.convert(cs);
-  if (conv.kind == time_zone::civil_conversion::kind::SKIPPED)
-    return conv.trans;
-  return conv.pre;
+inline time_point<sys_seconds> convert(const civil_second& cs, const time_zone& tz) {
+  const time_zone::civil_lookup lookup = tz.lookup(cs);
+  if (lookup.kind == time_zone::civil_lookup::SKIPPED)
+    return lookup.trans;
+  return lookup.pre;
 }
 ```
 
@@ -312,11 +310,11 @@ two fundamental operations of a time zone.
 const time_zone utc = utc_time_zone();
 const civil_second cs(2015, 2, 3, 4, 5, 6);  // 2015-02-03 04:05:06
 
-const auto tp1 = cs | utc;  // Civil -> Absolute
+const auto tp1 = convert(cs, utc);  // Civil -> Absolute
 
 time_zone nyc;
 if (load_time_zone("America/New_York", &nyc)) {
-  const auto tp2 = cs | nyc;  // Civil -> Absolute
+  const auto tp2 = convert(cs, nyc);  // Civil -> Absolute
   // tp1 != tp2
 }
 ```
@@ -331,11 +329,11 @@ const time_zone utc = utc_time_zone();
 const time_t tt = 1234567890;
 const auto tp = std::chrono::system_clock::from_time_t(tt);
 
-const civil_second cs1 = tp | utc;  // Absolute -> Civil
+const civil_second cs1 = convert(tp, utc);  // Absolute -> Civil
 
 time_zone nyc;
 if (load_time_zone("America/New_York", &nyc)) {
-  const civil_second cs2 = tp | nyc;  // Absolute -> Civil
+  const civil_second cs2 = convert(tp, nyc);  // Absolute -> Civil
   // cs1 != cs2
 }
 ```
@@ -346,9 +344,9 @@ Converting from an absolute time to a civil time is never affected by DST
 complexities. On the other hand, conversions going in the other direction could
 be specified as either skipped or repeated civil times, possibly requiring the
 caller to choose the desired outcome. In most cases the programmer will not have
-to make this decision as the shorthand syntax (`operator|`) shown thus far will
-choose a good default. However, if the chosen default is not desired, the
-programmer is free to select their own.
+to make this decision as the `convert()` functions shown thus far will choose a
+good default. However, if the chosen default is not desired, the programmer is
+free to select their own.
 
 The following example considers 2015-03-08 02:30:00, which did not exist in New
 York, USA.
@@ -359,11 +357,11 @@ time_zone nyc;
 if (!load_time_zone("America/New_York", &nyc)) { /* error */ }
 
 // The default is chosen by the shorthand syntax
-const auto tp = cs | nyc;  // tp == 2015-03-08 03:00:00 -0400
+const auto tp = convert(cs, nyc);  // tp == 2015-03-08 03:00:00 -0400
 
 // The longhand syntax.
-const time_zone::civil_conversion conv = nyc.convert(cs);
-// conv.kind ==  time_zone::civil_conversion::kind::SKIPPED
+const time_zone::civil_lookup conv = nyc.convert(cs);
+// conv.kind ==  time_zone::civil_lookup::SKIPPED
 // conv.pre ==   2015-03-08 03:30:00 -0400
 // conv.trans == 2015-03-08 03:00:00 -0400 (returned by shorthand syntax)
 // conv.post ==  2015-03-08 01:30:00 -0500
@@ -378,10 +376,10 @@ time_zone nyc;
 if (!load_time_zone("America/New_York", &nyc)) { /* error */ }
 
 // The default is chosen by the shorthand syntax
-const auto tp = cs | nyc;  // tp == 2015-11-01 01:30:00 -0400
+const auto tp = convert(cs, nyc);  // tp == 2015-11-01 01:30:00 -0400
 
-const time_zone::civil_conversion conv = nyc.convert(cs);
-// conv.kind ==  time_zone::civil_conversion::kind::REPEATED
+const time_zone::civil_lookup conv = nyc.convert(cs);
+// conv.kind ==  time_zone::civil_lookup::REPEATED
 // conv.pre ==   2015-11-01 01:30:00 -0400 (returned by shorthand syntax)
 // conv.trans == 2015-11-01 01:00:00 -0500 (aka 02:00:00 -0400)
 // conv.post ==  2015-11-01 01:30:00 -0500
@@ -404,7 +402,7 @@ borrowed from Howard Hinnant.
 ```cpp
 time_zone nyc;
 if (!load_time_zone("America/New_York", &nyc)) { /* error */ }
-const auto departure = civil_second(1978, 12, 30, 12, 1, 0) | nyc;
+const auto departure = convert(civil_second(1978, 12, 30, 12, 1, 0), nyc);
 const auto flight_length = std::chrono::hours(14) + std::chrono::minutes(44);
 const auto arrival = departure + flight_length;
 time_zone teh;
