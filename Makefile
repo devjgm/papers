@@ -12,7 +12,7 @@ ifeq ($(shell which $(PANDOC) > /dev/null 2>&1; echo $$?), 1)
 $(error The '$(PANDOC)' command was not found. See pandoc.org)
 endif
 
-.PHONEY: html clean
+.PHONEY: html tar clean
 
 html: $(HTML_FILES)
 
