@@ -224,7 +224,11 @@ ambiguous civil times (e.g., the 1:00 am hour is repeated during the Autumn DST
 transition in the United States), and some civil times may not exist in a
 particular time zone (e.g., the 2:00 am hour is skipped during the Spring DST
 transition in the United States). The `time_zone::civil_lookup` struct gives
-callers all relevant information about the conversion operation.
+callers all relevant information about the conversion operation, as the
+following diagram illustrates.
+
+![Diagram of civil_lookup struct]
+(https://raw.githubusercontent.com/devjgm/papers/master/resources/struct-civil_lookup.png)
 
 The full information provided by the `time_zone::absolute_lookup` and
 `time_zone::civil_lookup` structs is frequently not needed by callers. To
