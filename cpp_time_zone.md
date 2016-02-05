@@ -355,20 +355,22 @@ free to select their own.
 The following example considers 2015-03-08 02:30:00, which did not exist in New
 York, USA.
 
+Note: It may help to consult [this
+diagram](https://raw.githubusercontent.com/devjgm/papers/master/resources/struct-civil_lookup.png)
+while reading this example.
+
 ```cpp
 const civil_second cs(2015, 3, 8, 2, 30, 0);  // 2015-03-08 02:30:00
 time_zone nyc;
 if (!load_time_zone("America/New_York", &nyc)) { /* error */ }
 
-// The default is chosen by the shorthand syntax
 const auto tp = convert(cs, nyc);  // tp == 2015-03-08 03:00:00 -0400
 
-// The longhand syntax.
 const time_zone::civil_lookup lookup = nyc.lookup(cs);
-// lookup.kind ==  time_zone::civil_lookup::SKIPPED
-// lookup.pre ==   2015-03-08 03:30:00 -0400
-// lookup.trans == 2015-03-08 03:00:00 -0400 (returned by convert())
-// lookup.post ==  2015-03-08 01:30:00 -0500
+// lookup.kind  == time_zone::civil_lookup::SKIPPED
+// lookup.pre   == 2015-03-08 03:30:00 -0400 (== 2015-03-08 02:30:00 -0500)
+// lookup.trans == 2015-03-08 03:00:00 -0400 (== 2015-03-08 02:00:00 -0500)
+// lookup.post  == 2015-03-08 01:30:00 -0500 (== 2015-03-08 02:30:00 -0400)
 ```
 
 The next example considers 2015-11-01 01:30:00, which was repeated in New York,
@@ -379,14 +381,12 @@ const civil_second cs(2015, 11, 1, 1, 30, 0);  // 2015-11-01 01:30:00
 time_zone nyc;
 if (!load_time_zone("America/New_York", &nyc)) { /* error */ }
 
-// The default is chosen by the shorthand syntax
 const auto tp = convert(cs, nyc);  // tp == 2015-11-01 01:30:00 -0400
 
-const time_zone::civil_lookup lookup = nyc.lookup(cs);
-// lookup.kind ==  time_zone::civil_lookup::REPEATED
-// lookup.pre ==   2015-11-01 01:30:00 -0400 (returned by convert())
-// lookup.trans == 2015-11-01 01:00:00 -0500 (aka 02:00:00 -0400)
-// lookup.post ==  2015-11-01 01:30:00 -0500
+// lookup.kind  == time_zone::civil_lookup::REPEATED
+// lookup.pre   == 2015-11-01 01:30:00 -0400
+// lookup.trans == 2015-11-01 01:00:00 -0500 (== 2015-11-01 02:00:00 -0400)
+// lookup.post  == 2015-11-01 01:30:00 -0500
 ```
 
 ### Flight example
