@@ -201,9 +201,9 @@ field on which arithmetic operates.
 Each class can be constructed by passing up to six optional integer arguments
 representing the YMDHMS fields (in that order) to the constructor. Omitted
 fields are assigned their minimum valid value. Hours, minutes, and seconds will
-be set to 0, month and day will be set to 1, and year will be set to 1970. So, a
-default-constructed civil-time object will have YMDHMS fields representing
-"1970-01-01 00:00:00".
+be set to 0, month and day will be set to 1, and since there is no minimum valid
+year it will be set to 1970. So, a default-constructed civil-time object will
+have YMDHMS fields representing "1970-01-01 00:00:00".
 
 Each civil-time class is aligned to the civil-time field indicated in the
 class's name. Alignment is performed by setting all the inferior fields to their
@@ -226,7 +226,7 @@ This means that adding 1 to a `civil_day` increments the day field (normalizing
 as necessary), and subtracting 7 from a `civil_month` operates on the month
 field (normalizing as necessary). All arithmetic produces a new value that
 represents a valid civil time. Difference requires two similarly aligned civil
-time types and returns the scaler answer in units of the given alignment. For
+time types and returns the scalar answer in units of the given alignment. For
 example, the difference between two `civil_hour` objects will give an answer in
 hours.
 

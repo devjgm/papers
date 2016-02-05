@@ -195,9 +195,9 @@ class time_zone {
       SKIPPED,   // the civil time did not exist
       REPEATED,  // the civil time was ambiguous
     } kind;
-    time_point<sys_seconds> pre;   // Uses the pre-transition offset
-    time_point<sys_seconds> trans;
-    time_point<sys_seconds> post;  // Uses the post-transition offset
+    time_point<sys_seconds> pre;    // Uses the pre-transition offset
+    time_point<sys_seconds> trans;  // Instant of civil-offset change
+    time_point<sys_seconds> post;   // Uses the post-transition offset
   };
   civil_lookup lookup(const civil_second& cs) const;
 
