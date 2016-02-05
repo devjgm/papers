@@ -3,7 +3,7 @@
 PANDOC      = pandoc
 FROM_FMT    = markdown_github-hard_line_breaks
 TO_FMT      = html5
-PANDOC_OPTS = --self-contained --ascii --css style.css
+PANDOC_OPTS = --self-contained --ascii --css resources/style.css
 
 HTML_FILES  = $(patsubst %.md, %.html, $(filter-out README.md, $(wildcard *.md)))
 TGZ_OUT     = devjgm-papers.tar.gz
