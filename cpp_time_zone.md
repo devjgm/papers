@@ -350,14 +350,13 @@ be specified as either skipped or repeated civil times, possibly requiring the
 caller to choose the desired outcome. In most cases the programmer will not have
 to make this decision as the `convert()` functions shown thus far will choose a
 good default. However, if the chosen default is not desired, the programmer is
-free to select their own.
+free to select their own. (Note: It may help to consult [this
+diagram](https://raw.githubusercontent.com/devjgm/papers/master/resources/struct-civil_lookup.png)
+while reading these examples.)
 
 The following example considers 2015-03-08 02:30:00, which did not exist in New
-York, USA.
-
-Note: It may help to consult [this
-diagram](https://raw.githubusercontent.com/devjgm/papers/master/resources/struct-civil_lookup.png)
-while reading this example.
+York, USA. This example illustrates a civil time that is "skipped" when the
+civil-time offset changes by +1 hours from UTC-0500 to UTC-0400.
 
 ```cpp
 const civil_second cs(2015, 3, 8, 2, 30, 0);  // 2015-03-08 02:30:00
@@ -374,7 +373,8 @@ const time_zone::civil_lookup lookup = nyc.lookup(cs);
 ```
 
 The next example considers 2015-11-01 01:30:00, which was repeated in New York,
-USA.
+USA. This example illustrates a civil time that is "repeated" when the civil-time
+offset changes by -1 hours from UTC-0400 to UTC-0500.
 
 ```cpp
 const civil_second cs(2015, 11, 1, 1, 30, 0);  // 2015-11-01 01:30:00
