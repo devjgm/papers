@@ -121,9 +121,7 @@ This proposal depends on externally provided data that describes the rules for
 each time zone. Commonly this is distributed as data files, one for each time
 zone, as part of the IANA Time-Zone Database (https://www.iana.org/time-zones).
 These data may alternatively be located elsewhere on a computer (e.g., in a
-registry). The Time-Zone Library should use the time-zone data provided on the
-system. The time-zone data should not be included as part of the standard
-Time-Zone Library.
+registry). The data source for the time zone library is implementation defined.
 
 ### Leap seconds are disregarded (though could be supported)
 
