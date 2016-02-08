@@ -497,6 +497,7 @@ if (civil_month(ans_normalized) - civil_month(d) != 1) {
 * http://www.timeanddate.com/time/aboututc.html
 * https://en.wikipedia.org/wiki/Coordinated_Universal_Time
 * https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
+* https://github.com/google/cctz
 
 [Proleptic Gregorian Calendar]: https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
 [UTC]: https://en.wikipedia.org/wiki/Coordinated_Universal_Time

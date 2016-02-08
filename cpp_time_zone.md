@@ -420,6 +420,7 @@ if (!load_time_zone("Asia/Tehran", &teh)) { /* error */ }
 * https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
 * https://en.wikipedia.org/wiki/Tz_database
 * http://howardhinnant.github.io/tz.html.
+* https://github.com/google/cctz
 
 [Proleptic Gregorian Calendar]: https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
 [UTC]: https://en.wikipedia.org/wiki/Coordinated_Universal_Time
