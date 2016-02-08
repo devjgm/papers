@@ -227,8 +227,7 @@ transition in the United States). The `time_zone::civil_lookup` struct gives
 callers all relevant information about the conversion operation, as the
 following diagram illustrates.
 
-![Diagram of civil_lookup struct]
-(https://raw.githubusercontent.com/devjgm/papers/master/resources/struct-civil_lookup.png)
+![Diagram of civil_lookup struct](https://raw.githubusercontent.com/devjgm/papers/master/resources/struct-civil_lookup.png)
 
 The full information provided by the `time_zone::absolute_lookup` and
 `time_zone::civil_lookup` structs is frequently not needed by callers. To
