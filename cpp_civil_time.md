@@ -436,7 +436,7 @@ int m = c - civil_month(c);  // Won't compile: different types.
 ### Weekdays
 
 The Civil-Time Library provides the `prev_weekday()` and `next_weekday()`
-functions for navigating a calendar by the day of the week. Both functions
+functions for navigating the calendar by the day of the week. Both functions
 accept a `civil_day` argument as well as the desired `weekday`. They both
 return a strictly different `civil_day` that falls on the given `weekday`, even
 if the argument was already on the requested weekday.
