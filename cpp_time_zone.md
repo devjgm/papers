@@ -45,15 +45,16 @@ provide limited support for the "UTC" and "local" time zones, but there is
 minimal support for other arbitrary time zones.
 
 Sadly, programmers must each become time-zone "experts" in order to accomplish
-their goals. In code, it is not uncommon to see the addition/subtraction of an
-offset and a time point, preceded by volumes of commenting to explain why that
-operation is correct, usually with some caveat about daylight-saving time (DST).
-An informal survey of such call sites in Google code showed that few of the
-operations were ever actually correct, and nearly all of the comments were
-misinformed.
+their goals. In code, it is not uncommon to see the addition/subtraction of a
+UTC offset and a time point, preceded by volumes of commenting to explain why
+that operation is necessary, usually with some caveat about daylight-saving time
+(DST). An informal survey of such call sites in Google code showed that few of
+the operations were actually correct, and nearly all of the comments were
+misinformed. This is likely because it is impractical to expect time-zone
+expertise from all programmers.
 
-Programmers must not be expected to do their own arithmetic with time-zone
-offsets. This is a frequent source of bugs and is an anti-pattern we call "epoch
+Programmers should not need to do their own arithmetic with time-zone offsets.
+This is a frequent source of bugs and is an anti-pattern we call "epoch
 shifting" (CppCon 2015 talk: https://youtu.be/2rnIHsqABfM?t=12m30s). A proper
 time-zone library must do all necessary time-zone arithmetic itself, giving
 callers higher-level abstractions on which to build their programs. These
@@ -341,13 +342,15 @@ if (load_time_zone("America/New_York", &nyc)) {
 
 ### Handling daylight-saving time
 
-Converting from an absolute time to a civil time is never affected by DST
-complexities. On the other hand, conversions going in the other direction could
-be specified as either skipped or repeated civil times, possibly requiring the
-caller to choose the desired outcome. In most cases the programmer will not have
-to make this decision as the `convert()` functions shown thus far will choose a
-good default. However, if the chosen default is not desired, the programmer is
-free to select their own. (Note: It may help to consult [this
+As mentioned above, converting from an absolute time to a civil time is never
+affected by time-zone complexities like DST. On the other hand, conversions
+going in the other direction could be specified as either skipped or repeated
+civil times. The `convert()` function used thus far will always work, either
+returning the exact answer or a good alternative if no exact answer exists. Most
+users will simply want to use `convert()`. However, if a programmer would like
+to handle possibly inexact conversions explicitly, they may do so by calling the
+`time_zone::lookup()` member functions directly as the following examples show.
+(Note: It may help to consult [this
 diagram](https://raw.githubusercontent.com/devjgm/papers/master/resources/struct-civil_lookup.png)
 while reading these examples.)
 
