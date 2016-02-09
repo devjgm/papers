@@ -2,10 +2,10 @@
 
 Metadata        | Value
 :---------------|:------
-Document number | D0206
-Date            | 2016-02-04
+Document number | D0206R0
+Date            | 2016-02-09
 Reply-to        | Greg Miller (jgm@google.com), Bradley White (bww@google.com)
-Audience        | Programming Language C++, Library Working Group
+Audience        | Library Evolution Working Group
 Source          | https://github.com/devjgm/papers/blob/master/cpp_time_zone.md
 
 ## Table of Contents

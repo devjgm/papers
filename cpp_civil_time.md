@@ -2,10 +2,10 @@
 
 Metadata        | Value
 :---------------|:------
-Document number | D0205
-Date            | 2016-02-04
+Document number | D0205R0
+Date            | 2016-02-09
 Reply-to        | Greg Miller (jgm@google.com), Bradley White (bww@google.com)
-Audience        | Programming Language C++, Library Working Group
+Audience        | Library Evolution Working Group
 Source          | https://github.com/devjgm/papers/blob/master/cpp_civil_time.md
 
 ## Table of Contents
@@ -371,7 +371,7 @@ up to six (optional) integers representing YMDHMS fields to the constructor, or
 by copying the fields from a differently aligned civil-time type.
 
 ```cpp
-civil_day default_value;           // 1970-01-01 00:00:00
+civil_day default_value;  // 1970-01-01 00:00:00
 
 civil_day a(2015, 2, 3);           // 2015-02-03 00:00:00
 civil_day b(2015, 2, 3, 4, 5, 6);  // 2015-02-03 00:00:00
@@ -384,11 +384,11 @@ civil_day d(hh);                       // 2015-02-03 00:00:00
 civil_month m(d);                      // 2015-02-01 00:00:00
 civil_year y(m);                       // 2015-01-01 00:00:00
 
-m = civil_month(y);                    // 2015-01-01 00:00:00
-d = civil_day(m);                      // 2015-01-01 00:00:00
-hh = civil_hour(d);                    // 2015-01-01 00:00:00
-mm = civil_minute(hh);                 // 2015-01-01 00:00:00
-ss = civil_second(mm);                 // 2015-01-01 00:00:00
+m = civil_month(y);     // 2015-01-01 00:00:00
+d = civil_day(m);       // 2015-01-01 00:00:00
+hh = civil_hour(d);     // 2015-01-01 00:00:00
+mm = civil_minute(hh);  // 2015-01-01 00:00:00
+ss = civil_second(mm);  // 2015-01-01 00:00:00
 ```
 
 ### Comparison
@@ -425,11 +425,11 @@ alignment and returns the answer in units of the alignment.
 
 ```cpp
 civil_day a(2015, 2, 3);
-++a;                  // 2015-02-04 00:00:00
---a;                  // 2015-02-03 00:00:00
-civil_day b = a + 1;  // 2015-02-04 00:00:00
-civil_day c = 1 + b;  // 2015-02-05 00:00:00
-int n = c - a;        // n = 2 (days)
+++a;                         // 2015-02-04 00:00:00
+--a;                         // 2015-02-03 00:00:00
+civil_day b = a + 1;         // 2015-02-04 00:00:00
+civil_day c = 1 + b;         // 2015-02-05 00:00:00
+int n = c - a;               // n = 2 (days)
 int m = c - civil_month(c);  // Won't compile: different types.
 ```
 
@@ -486,7 +486,7 @@ const auto ans_capped = std::min(ans_normalized, last_day_of_next_month);
 
 // Answer 3:
 if (civil_month(ans_normalized) - civil_month(d) != 1) {
-  ... error, month overflow...
+  // error, month overflow
 }
 ```
 
