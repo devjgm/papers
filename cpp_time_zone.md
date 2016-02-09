@@ -201,7 +201,7 @@ class time_zone {
   civil_lookup lookup(const civil_second& cs) const;
 
  private:
-  ...
+  // ...
 };
 
 // Loads the named time zone. Returns false on error.
@@ -295,9 +295,7 @@ time zone by value.
 
 ```cpp
 time_zone nyc;
-if (load_time_zone("America/New_York", &nyc)) {
-  ...
-}
+if (!load_time_zone("America/New_York", &nyc)) { /* error */ }
 
 const time_zone utc = utc_time_zone();
 const time_zone local = local_time_zone();
@@ -315,10 +313,10 @@ const civil_second cs(2015, 2, 3, 4, 5, 6);  // 2015-02-03 04:05:06
 const auto tp1 = convert(cs, utc);  // Civil -> Absolute
 
 time_zone nyc;
-if (load_time_zone("America/New_York", &nyc)) {
-  const auto tp2 = convert(cs, nyc);  // Civil -> Absolute
-  // tp1 != tp2
-}
+if (!load_time_zone("America/New_York", &nyc)) { /* error */ }
+
+const auto tp2 = convert(cs, nyc);  // Civil -> Absolute
+// tp1 != tp2
 ```
 
 ### Creating a `civil_second` from a `time_point`
@@ -334,10 +332,10 @@ const auto tp = std::chrono::system_clock::from_time_t(tt);
 const civil_second cs1 = convert(tp, utc);  // Absolute -> Civil
 
 time_zone nyc;
-if (load_time_zone("America/New_York", &nyc)) {
-  const civil_second cs2 = convert(tp, nyc);  // Absolute -> Civil
-  // cs1 != cs2
-}
+if (!load_time_zone("America/New_York", &nyc)) { /* error */ }
+
+const civil_second cs2 = convert(tp, nyc);  // Absolute -> Civil
+// cs1 != cs2
 ```
 
 ### Handling daylight-saving time
@@ -383,6 +381,7 @@ if (!load_time_zone("America/New_York", &nyc)) { /* error */ }
 
 const auto tp = convert(cs, nyc);  // tp == 2015-11-01 01:30:00 -0400
 
+const time_zone::civil_lookup lookup = nyc.lookup(cs);
 // lookup.kind  == time_zone::civil_lookup::REPEATED
 // lookup.pre   == 2015-11-01 01:30:00 -0400
 // lookup.trans == 2015-11-01 01:00:00 -0500 (== 2015-11-01 02:00:00 -0400)
