@@ -119,12 +119,12 @@ Unlike leap days, which are part of the [Proleptic Gregorian Calendar], leap
 seconds are unpredictable and would require time zone knowledge to properly
 support their use in the civil-time domain. Such time zone awareness would add
 substantial conceptual complexity for a rare use case. The simplicity of this
-Civil-Time Library stems from presenting a regularized human-scale time
-representation that is devoid of complexities and discontinuities, such as those
-caused by supporting DST and leap seconds. We believe it would be a mistake to
-expose leap second complexities in the civil-time domain. And if knowledge of
-leap seconds were necessary, that support should exist in a separate time zone
-library rather than a civil-time library.
+Civil-Time Library stems from presenting a regularized, or idealized,
+human-scale time representation that is devoid of complexities and
+discontinuities, such as those caused by supporting DST and leap seconds. We
+believe it would be a mistake to expose leap second complexities in the
+civil-time domain. And if knowledge of leap seconds were necessary, that support
+should exist in a separate time zone library rather than a civil-time library.
 
 ### Civil times are always valid
 
