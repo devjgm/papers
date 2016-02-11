@@ -1,5 +1,26 @@
-pre, code { background-color: #f8f8f8; }
+body {
+  padding-left: 10px;
+  padding-right: 10%;
+}
 pre {
-  border: 1px solid gray;
+  background-color: #f8f8f8;
+  border: 1px solid darkgray;
   padding: 3px;
+}
+table:first-of-type thead {
+  display: none;
+}
+table {
+  border: 1px solid darkgray;
+}
+thead {
+  background-color: darkgray;
+  color: white;
+}
+th,td {
+  padding: 2px;
+  padding-right: 20px;
+}
+tr:nth-child(even) {
+  background-color: #f8f8f8;
 }
