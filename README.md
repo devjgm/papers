@@ -1,2 +1,2 @@
 # Papers
-Drafts of papers to be published externally
+Drafts of papers to be published externally.
